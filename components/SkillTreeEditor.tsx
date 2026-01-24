@@ -2,8 +2,11 @@
 
 import dynamic from 'next/dynamic';
 import { useEffect, useRef, useState } from 'react';
+import type { NodeSingular } from 'cytoscape';
 import type { SkillTree } from '@/lib/skill-tree/SkillTree';
-import type { TreeData } from '@/types/skill-tree';
+import type { TreeData, CytoscapeNodeData } from '@/types/skill-tree';
+import DetailPanel from './DetailPanel';
+import ContextMenu from './ContextMenu';
 
 interface SkillTreeEditorProps {
   treeId?: string;
@@ -16,6 +19,9 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, onSave }: SkillTr
   const containerRef = useRef<HTMLDivElement>(null);
   const [skillTree, setSkillTree] = useState<SkillTree | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedNode, setSelectedNode] = useState<NodeSingular | null>(null);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [contextMenu, setContextMenu] = useState<{ node: NodeSingular | null; x: number; y: number } | null>(null);
 
   useEffect(() => {
     // Initialize Cytoscape only on client
@@ -24,16 +30,15 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, onSave }: SkillTr
         const tree = new SkillTreeClass({
           container: containerRef.current!,
           onNodeClick: (node) => {
-            console.log('Node clicked:', node.data('label'));
-            // Will implement detail panel later
+            setSelectedNode(node);
+            setIsPanelOpen(true);
           },
           onNodeRightClick: (node, event) => {
-            console.log('Node right-clicked:', node.data('label'));
-            // Will implement context menu later
+            setContextMenu({ node, x: event.clientX, y: event.clientY });
           },
           onCanvasRightClick: (event) => {
-            console.log('Canvas right-clicked');
-            // Will implement canvas context menu later
+            setIsPanelOpen(false);
+            setContextMenu(null);
           },
           onTreeChanged: () => {
             if (onSave && tree) {
@@ -61,6 +66,50 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, onSave }: SkillTr
     };
   }, []);
 
+  // ESC key handler
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsPanelOpen(false);
+        setContextMenu(null);
+      }
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, []);
+
+  // Node operation handlers
+  const handleUpdateNode = (nodeId: string, updates: Partial<CytoscapeNodeData>) => {
+    skillTree?.updateNode(nodeId, updates);
+  };
+
+  const handleAddChild = async (nodeId: string) => {
+    if (skillTree) {
+      const cy = skillTree.getCytoscapeInstance();
+      const node = cy?.getElementById(nodeId);
+      if (node && node.length > 0) {
+        await skillTree.addChildNode(node);
+        setContextMenu(null);
+      }
+    }
+  };
+
+  const handleToggleComplete = (nodeId: string) => {
+    const cy = skillTree?.getCytoscapeInstance();
+    const node = cy?.getElementById(nodeId);
+    if (node && node.length > 0) {
+      const completed = node.data('completed');
+      skillTree?.updateNode(nodeId, { completed: !completed });
+      setContextMenu(null);
+    }
+  };
+
+  const handleDelete = (nodeId: string) => {
+    skillTree?.deleteNode(nodeId);
+    setIsPanelOpen(false);
+    setContextMenu(null);
+  };
+
   return (
     <div className="flex-1 relative bg-gray-900">
       {loading && (
@@ -69,6 +118,29 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, onSave }: SkillTr
         </div>
       )}
       <div ref={containerRef} className="w-full h-full" style={{ minHeight: '600px' }} />
+
+      <DetailPanel
+        node={selectedNode}
+        isOpen={isPanelOpen}
+        onClose={() => setIsPanelOpen(false)}
+        onUpdate={handleUpdateNode}
+      />
+
+      {contextMenu && (
+        <ContextMenu
+          node={contextMenu.node}
+          position={{ x: contextMenu.x, y: contextMenu.y }}
+          onClose={() => setContextMenu(null)}
+          onAddChild={handleAddChild}
+          onEdit={() => {
+            setSelectedNode(contextMenu.node);
+            setIsPanelOpen(true);
+            setContextMenu(null);
+          }}
+          onToggleComplete={handleToggleComplete}
+          onDelete={handleDelete}
+        />
+      )}
     </div>
   );
 }
