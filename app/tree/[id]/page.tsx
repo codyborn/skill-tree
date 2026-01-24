@@ -18,6 +18,38 @@ export default function TreePage({ params }: { params: { id: string } }) {
   // Fetch tree data on mount
   useEffect(() => {
     if (status === 'authenticated') {
+      // Handle "new" tree case
+      if (params.id === 'new') {
+        // Load with sample data for new trees
+        const sampleData: TreeData = {
+          version: '1.0',
+          name: 'New Skill Tree',
+          nodes: [
+            {
+              group: 'nodes',
+              data: {
+                id: 'root',
+                label: 'Root Skill',
+                description: 'Start building your skill tree',
+                completed: false,
+                locked: false,
+                parentId: null,
+                prerequisites: [],
+                iconData: null,
+                weight: 5,
+                subtreeCompletion: 0,
+                subtreeProgress: { completed: 0, total: 1 },
+                metadata: {},
+              },
+            },
+          ],
+          edges: [],
+        };
+        setInitialData(sampleData);
+        return;
+      }
+
+      // Fetch existing tree
       fetch(`/api/trees/${params.id}`)
         .then((res) => res.json())
         .then((data) => {
@@ -46,14 +78,36 @@ export default function TreePage({ params }: { params: { id: string } }) {
     saveTimeoutRef.current = setTimeout(async () => {
       setIsSaving(true);
       try {
-        const response = await fetch(`/api/trees/${params.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ data }),
-        });
+        if (params.id === 'new') {
+          // Create new tree
+          const response = await fetch('/api/trees', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: data.name || 'Untitled Skill Tree',
+              description: 'Created from editor',
+              data,
+            }),
+          });
 
-        if (!response.ok) {
-          throw new Error('Failed to save');
+          if (!response.ok) {
+            throw new Error('Failed to create tree');
+          }
+
+          const { tree } = await response.json();
+          // Redirect to the new tree's URL
+          window.history.replaceState(null, '', `/tree/${tree.id}`);
+        } else {
+          // Update existing tree
+          const response = await fetch(`/api/trees/${params.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data }),
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to save');
+          }
         }
       } catch (error) {
         console.error('Save error:', error);
