@@ -1,11 +1,14 @@
 import OpenAI from 'openai';
 import type { AIGenerationRequest, AIGenerationResponse } from '@/types/skill-tree';
 
-export const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
+function getOpenAIClient() {
+  return new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY!,
+  });
+}
 
 export async function generateSkillTree(params: AIGenerationRequest): Promise<AIGenerationResponse> {
+  const openai = getOpenAIClient();
   const { topic, nodeCount = 10, style = 'technical' } = params;
 
   const stylePrompts = {

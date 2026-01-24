@@ -3,8 +3,6 @@
  * Converted to TypeScript
  */
 
-import type { Stylesheet } from 'cytoscape';
-
 export type Theme = 'light' | 'dark';
 
 export const ThemeManager = {
@@ -37,7 +35,7 @@ export const ThemeManager = {
   /**
    * Get current theme colors for Cytoscape
    */
-  getCytoscapeStyle(): Stylesheet[] {
+  getCytoscapeStyle(): any[] {
     const isDark = this.currentTheme === 'dark';
 
     return [

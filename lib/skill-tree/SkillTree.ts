@@ -203,17 +203,17 @@ export class SkillTree {
   private async loadSampleTree() {
     const { NodeRenderer } = await import('./NodeRenderer');
 
+    const rootNodeData = NodeRenderer.createNode('Root', null);
+    const rootNode = NodeRenderer.toCytoscapeNode(rootNodeData);
+    rootNode.data.locked = false;
+    rootNode.data.completed = false;
+
     const sampleData: TreeData = {
       version: '1.0',
       name: 'Sample Tree',
-      nodes: [NodeRenderer.createNode('Root', null)],
+      nodes: [rootNode],
       edges: [],
     };
-
-    // Create single root node
-    const rootNode = sampleData.nodes[0];
-    rootNode.data.locked = false;
-    rootNode.data.completed = false;
 
     await this.loadTree(sampleData);
   }
