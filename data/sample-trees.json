@@ -1,0 +1,175 @@
+{
+  "version": "1.0",
+  "trees": [
+    {
+      "id": "programming-basics",
+      "name": "Programming Fundamentals",
+      "description": "Essential programming skills for beginners",
+      "nodes": [
+        {
+          "id": "root_prog",
+          "label": "Programming Basics",
+          "description": "Foundation of programming knowledge",
+          "completed": false,
+          "locked": false,
+          "parent": null,
+          "prerequisites": [],
+          "metadata": { "category": "foundation" }
+        },
+        {
+          "id": "variables",
+          "label": "Variables & Data Types",
+          "description": "Understanding variables, data types, and memory",
+          "completed": false,
+          "locked": true,
+          "parent": "root_prog",
+          "prerequisites": ["root_prog"],
+          "metadata": { "category": "basics" }
+        },
+        {
+          "id": "control_flow",
+          "label": "Control Flow",
+          "description": "If statements, loops, and conditional logic",
+          "completed": false,
+          "locked": true,
+          "parent": "root_prog",
+          "prerequisites": ["root_prog"],
+          "metadata": { "category": "basics" }
+        },
+        {
+          "id": "functions",
+          "label": "Functions",
+          "description": "Creating reusable code with functions",
+          "completed": false,
+          "locked": true,
+          "parent": "root_prog",
+          "prerequisites": ["root_prog"],
+          "metadata": { "category": "basics" }
+        },
+        {
+          "id": "data_structures",
+          "label": "Data Structures",
+          "description": "Arrays, lists, dictionaries, and sets",
+          "completed": false,
+          "locked": true,
+          "parent": "variables",
+          "prerequisites": ["variables", "control_flow"],
+          "metadata": { "category": "intermediate" }
+        },
+        {
+          "id": "oop",
+          "label": "Object-Oriented Programming",
+          "description": "Classes, objects, inheritance, and polymorphism",
+          "completed": false,
+          "locked": true,
+          "parent": "functions",
+          "prerequisites": ["variables", "control_flow", "functions"],
+          "metadata": { "category": "advanced" }
+        },
+        {
+          "id": "algorithms",
+          "label": "Algorithms",
+          "description": "Sorting, searching, and algorithm design",
+          "completed": false,
+          "locked": true,
+          "parent": "data_structures",
+          "prerequisites": ["data_structures", "functions"],
+          "metadata": { "category": "advanced" }
+        }
+      ],
+      "edges": [
+        { "from": "root_prog", "to": "variables" },
+        { "from": "root_prog", "to": "control_flow" },
+        { "from": "root_prog", "to": "functions" },
+        { "from": "variables", "to": "data_structures" },
+        { "from": "functions", "to": "oop" },
+        { "from": "data_structures", "to": "algorithms" }
+      ]
+    },
+    {
+      "id": "web-dev",
+      "name": "Web Development",
+      "description": "Full-stack web development skill tree",
+      "nodes": [
+        {
+          "id": "root_web",
+          "label": "Web Development",
+          "description": "Modern web development",
+          "completed": false,
+          "locked": false,
+          "parent": null,
+          "prerequisites": [],
+          "metadata": { "category": "foundation" }
+        },
+        {
+          "id": "html",
+          "label": "HTML",
+          "description": "Semantic HTML and document structure",
+          "completed": false,
+          "locked": true,
+          "parent": "root_web",
+          "prerequisites": ["root_web"],
+          "metadata": { "category": "frontend" }
+        },
+        {
+          "id": "css",
+          "label": "CSS",
+          "description": "Styling and layouts",
+          "completed": false,
+          "locked": true,
+          "parent": "root_web",
+          "prerequisites": ["root_web"],
+          "metadata": { "category": "frontend" }
+        },
+        {
+          "id": "javascript",
+          "label": "JavaScript",
+          "description": "Client-side programming",
+          "completed": false,
+          "locked": true,
+          "parent": "root_web",
+          "prerequisites": ["root_web"],
+          "metadata": { "category": "frontend" }
+        },
+        {
+          "id": "react",
+          "label": "React",
+          "description": "Component-based UI library",
+          "completed": false,
+          "locked": true,
+          "parent": "javascript",
+          "prerequisites": ["html", "css", "javascript"],
+          "metadata": { "category": "framework" }
+        },
+        {
+          "id": "nodejs",
+          "label": "Node.js",
+          "description": "Server-side JavaScript",
+          "completed": false,
+          "locked": true,
+          "parent": "javascript",
+          "prerequisites": ["javascript"],
+          "metadata": { "category": "backend" }
+        },
+        {
+          "id": "database",
+          "label": "Databases",
+          "description": "SQL and NoSQL databases",
+          "completed": false,
+          "locked": true,
+          "parent": "nodejs",
+          "prerequisites": ["nodejs"],
+          "metadata": { "category": "backend" }
+        }
+      ],
+      "edges": [
+        { "from": "root_web", "to": "html" },
+        { "from": "root_web", "to": "css" },
+        { "from": "root_web", "to": "javascript" },
+        { "from": "javascript", "to": "react" },
+        { "from": "javascript", "to": "nodejs" },
+        { "from": "nodejs", "to": "database" }
+      ]
+    }
+  ]
+}
