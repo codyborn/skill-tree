@@ -60,6 +60,10 @@ export class SkillTree {
     const { ThemeManager } = await import('./themes');
     const { NodeRenderer } = await import('./NodeRenderer');
 
+    // Initialize theme from localStorage
+    const savedTheme = ThemeManager.getTheme();
+    ThemeManager.currentTheme = savedTheme;
+
     // Create Cytoscape instance
     this.cy = cytoscape({
       container: this.container,
@@ -193,6 +197,9 @@ export class SkillTree {
   async updateCytoscapeTheme() {
     if (this.cy) {
       const { ThemeManager } = await import('./themes');
+      // Update theme from localStorage
+      const savedTheme = ThemeManager.getTheme();
+      ThemeManager.currentTheme = savedTheme;
       this.cy.style(ThemeManager.getCytoscapeStyle());
       if (this.onThemeChange) {
         this.onThemeChange();

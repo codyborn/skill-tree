@@ -46,6 +46,9 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, onSave }: SkillTr
               onSave(data);
             }
           },
+          onThemeChange: () => {
+            // Theme changed, Cytoscape will update automatically
+          },
         });
 
         tree.init().then(() => {
@@ -65,6 +68,18 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, onSave }: SkillTr
       }
     };
   }, []);
+
+  // Listen for theme changes
+  useEffect(() => {
+    const handleThemeChange = () => {
+      if (skillTree) {
+        skillTree.updateCytoscapeTheme();
+      }
+    };
+
+    window.addEventListener('themeChanged', handleThemeChange);
+    return () => window.removeEventListener('themeChanged', handleThemeChange);
+  }, [skillTree]);
 
   // ESC key handler
   useEffect(() => {

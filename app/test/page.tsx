@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SkillTreeEditor from '@/components/SkillTreeEditor';
 import Toast from '@/components/Toast';
 import type { TreeData } from '@/types/skill-tree';
@@ -33,6 +33,16 @@ const sampleTreeData: TreeData = {
 
 export default function TestPage() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+  // Load theme on mount
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('skill_tree_theme');
+    if (savedTheme === 'dark' || savedTheme === 'light') {
+      setTheme(savedTheme);
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+  }, []);
 
   const handleSave = (data: TreeData) => {
     console.log('Auto-save triggered:', data);
@@ -45,6 +55,14 @@ export default function TestPage() {
     setToast({ message: 'Test link copied to clipboard!', type: 'success' });
   };
 
+  const handleToggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('skill_tree_theme', newTheme);
+    window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: newTheme } }));
+  };
+
   return (
     <div className="flex flex-col h-screen">
       <header className="bg-gray-800 border-b border-gray-700 px-4 py-3">
@@ -54,6 +72,14 @@ export default function TestPage() {
             <p className="text-sm text-gray-400">No auth or database required</p>
           </div>
           <div className="flex items-center gap-4">
+            <button
+              onClick={handleToggleTheme}
+              className="p-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition"
+              aria-label="Toggle theme"
+              title="Toggle theme"
+            >
+              {theme === 'light' ? '🌙' : '☀️'}
+            </button>
             <button
               onClick={handleShare}
               className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition"
