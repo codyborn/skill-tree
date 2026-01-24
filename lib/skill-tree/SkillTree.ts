@@ -393,6 +393,21 @@ export class SkillTree {
       node.data(key, updates[key as keyof CytoscapeNodeData]);
     });
 
+    // If color changed, propagate to all descendants
+    if ('iconData' in updates && updates.iconData?.color) {
+      const descendants = NodeRenderer.getAllDescendants(this.cy, nodeId);
+      descendants.forEach((descId) => {
+        const descNode = this.cy!.getElementById(descId);
+        if (descNode.length) {
+          const descIconData = descNode.data('iconData') || { type: 'emoji', icon: '', color: '#6366f1' };
+          descNode.data('iconData', {
+            ...descIconData,
+            color: updates.iconData!.color,
+          });
+        }
+      });
+    }
+
     // If completion, iconData, or weight changed, update subtree completions
     if ('completed' in updates || 'iconData' in updates || 'weight' in updates) {
       NodeRenderer.updateChildrenLockState(this.cy, nodeId);

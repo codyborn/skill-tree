@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react';
 import type { NodeSingular } from 'cytoscape';
 import type { CytoscapeNodeData } from '@/types/skill-tree';
-import { marked } from 'marked';
-import DOMPurify from 'dompurify';
 
 interface DetailPanelProps {
   node: NodeSingular | null;
@@ -13,12 +11,19 @@ interface DetailPanelProps {
   onUpdate: (nodeId: string, updates: Partial<CytoscapeNodeData>) => void;
 }
 
+const PRESET_COLORS = [
+  '#6366f1', '#8b5cf6', '#ec4899', '#10b981', '#f59e0b',
+  '#ef4444', '#06b6d4', '#14b8a6', '#f97316', '#a855f7'
+];
+
 export default function DetailPanel({ node, isOpen, onClose, onUpdate }: DetailPanelProps) {
   const [label, setLabel] = useState('');
   const [description, setDescription] = useState('');
   const [completed, setCompleted] = useState(false);
   const [weight, setWeight] = useState(1);
-  const [showPreview, setShowPreview] = useState(false);
+  const [color, setColor] = useState('#6366f1');
+  const [icon, setIcon] = useState('');
+  const [completedAt, setCompletedAt] = useState<string | null>(null);
 
   useEffect(() => {
     if (node) {
@@ -26,6 +31,18 @@ export default function DetailPanel({ node, isOpen, onClose, onUpdate }: DetailP
       setDescription(node.data('description') || '');
       setCompleted(node.data('completed') || false);
       setWeight(node.data('weight') || 1);
+
+      const iconData = node.data('iconData');
+      if (iconData) {
+        setColor(iconData.color || '#6366f1');
+        setIcon(iconData.icon || '');
+      } else {
+        setColor('#6366f1');
+        setIcon('');
+      }
+
+      const metadata = node.data('metadata') || {};
+      setCompletedAt(metadata.completedAt || null);
     }
   }, [node]);
 
@@ -48,6 +65,7 @@ export default function DetailPanel({ node, isOpen, onClose, onUpdate }: DetailP
   if (!node) return null;
 
   const nodeId = node.id();
+  const isRoot = !node.data('parentId');
   const subtreeProgress = node.data('subtreeProgress') || { completed: 0, total: 0 };
   const completionPercentage =
     subtreeProgress.total > 0 ? Math.round((subtreeProgress.completed / subtreeProgress.total) * 100) : 0;
@@ -67,7 +85,19 @@ export default function DetailPanel({ node, isOpen, onClose, onUpdate }: DetailP
   const handleCompletedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newCompleted = e.target.checked;
     setCompleted(newCompleted);
-    onUpdate(nodeId, { completed: newCompleted });
+
+    const now = new Date().toISOString();
+    const metadata = node.data('metadata') || {};
+    const newMetadata = {
+      ...metadata,
+      completedAt: newCompleted ? now : null,
+    };
+
+    setCompletedAt(newCompleted ? now : null);
+    onUpdate(nodeId, {
+      completed: newCompleted,
+      metadata: newMetadata,
+    });
   };
 
   const handleWeightChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,10 +108,28 @@ export default function DetailPanel({ node, isOpen, onClose, onUpdate }: DetailP
     }
   };
 
-  const renderMarkdown = () => {
-    const rawHtml = marked(description) as string;
-    const cleanHtml = DOMPurify.sanitize(rawHtml);
-    return { __html: cleanHtml };
+  const handleColorChange = (newColor: string) => {
+    setColor(newColor);
+    const iconData = node.data('iconData') || { type: 'emoji', icon: '', color: '#6366f1' };
+    onUpdate(nodeId, {
+      iconData: {
+        ...iconData,
+        color: newColor,
+      },
+    });
+  };
+
+  const handleIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newIcon = e.target.value;
+    setIcon(newIcon);
+    const iconData = node.data('iconData') || { type: 'emoji', icon: '', color: color };
+    onUpdate(nodeId, {
+      iconData: {
+        ...iconData,
+        type: 'emoji',
+        icon: newIcon,
+      },
+    });
   };
 
   return (
@@ -128,46 +176,81 @@ export default function DetailPanel({ node, isOpen, onClose, onUpdate }: DetailP
             />
           </div>
 
-          {/* Description */}
+          {/* Icon */}
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-gray-300">Description</label>
-              <button
-                onClick={() => setShowPreview(!showPreview)}
-                className="text-xs text-blue-400 hover:text-blue-300"
-              >
-                {showPreview ? 'Edit' : 'Preview'}
-              </button>
-            </div>
-            {showPreview ? (
-              <div
-                className="w-full min-h-[100px] px-3 py-2 bg-gray-900 border border-gray-700 rounded text-white prose prose-invert prose-sm max-w-none"
-                dangerouslySetInnerHTML={renderMarkdown()}
-              />
-            ) : (
-              <textarea
-                value={description}
-                onChange={handleDescriptionChange}
-                rows={6}
-                className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded text-white focus:outline-none focus:border-blue-500 resize-none"
-                placeholder="Markdown supported..."
-              />
-            )}
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Icon (emoji or leave empty)
+            </label>
+            <input
+              type="text"
+              value={icon}
+              onChange={handleIconChange}
+              placeholder="🎮"
+              maxLength={4}
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded text-white text-2xl text-center focus:outline-none focus:border-blue-500"
+            />
           </div>
 
-          {/* Completed Checkbox */}
-          <div className="flex items-center">
+          {/* Color Picker */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Color</label>
+            <div className="grid grid-cols-5 gap-2">
+              {PRESET_COLORS.map((presetColor) => (
+                <button
+                  key={presetColor}
+                  onClick={() => handleColorChange(presetColor)}
+                  className={`w-10 h-10 rounded border-2 transition ${
+                    color === presetColor ? 'border-white scale-110' : 'border-gray-600'
+                  }`}
+                  style={{ backgroundColor: presetColor }}
+                  aria-label={`Select color ${presetColor}`}
+                />
+              ))}
+            </div>
             <input
-              type="checkbox"
-              id="completed"
-              checked={completed}
-              onChange={handleCompletedChange}
-              className="w-4 h-4 text-blue-600 bg-gray-900 border-gray-700 rounded focus:ring-blue-500"
+              type="color"
+              value={color}
+              onChange={(e) => handleColorChange(e.target.value)}
+              className="w-full mt-2 h-10 rounded bg-gray-900 border border-gray-700 cursor-pointer"
             />
-            <label htmlFor="completed" className="ml-2 text-sm text-gray-300">
-              Completed
-            </label>
           </div>
+
+          {/* Description */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>
+            <textarea
+              value={description}
+              onChange={handleDescriptionChange}
+              rows={6}
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded text-white focus:outline-none focus:border-blue-500 resize-none"
+              placeholder="Add description (markdown supported)..."
+            />
+          </div>
+
+          {/* Completed Checkbox - Hide for root nodes */}
+          {!isRoot && (
+            <div>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="completed"
+                  checked={completed}
+                  onChange={handleCompletedChange}
+                  className="w-4 h-4 text-blue-600 bg-gray-900 border-gray-700 rounded focus:ring-blue-500"
+                />
+                <label htmlFor="completed" className="ml-2 text-sm text-gray-300">
+                  Completed
+                </label>
+              </div>
+
+              {/* Date Completed - Show when completed */}
+              {completed && completedAt && (
+                <div className="mt-2 text-sm text-gray-400">
+                  Completed: {new Date(completedAt).toLocaleDateString()}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Weight */}
           <div>

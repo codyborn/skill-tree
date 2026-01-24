@@ -8,6 +8,7 @@ interface ContextMenuProps {
   position: { x: number; y: number } | null;
   onClose: () => void;
   onAddChild: (nodeId: string) => void;
+  onAIGenerate: (nodeId: string) => void;
   onEdit: () => void;
   onToggleComplete: (nodeId: string) => void;
   onDelete: (nodeId: string) => void;
@@ -18,6 +19,7 @@ export default function ContextMenu({
   position,
   onClose,
   onAddChild,
+  onAIGenerate,
   onEdit,
   onToggleComplete,
   onDelete,
@@ -87,6 +89,13 @@ export default function ContextMenu({
       >
         Add Child
       </button>
+      <button
+        className="w-full px-4 py-2 text-left text-blue-400 hover:bg-gray-700 transition"
+        onClick={() => onAIGenerate(nodeId)}
+      >
+        ✨ Add new skill (AI)
+      </button>
+      <hr className="my-2 border-gray-700" />
       <button
         className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 transition"
         onClick={onEdit}

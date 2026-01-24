@@ -7,6 +7,8 @@ import type { SkillTree } from '@/lib/skill-tree/SkillTree';
 import type { TreeData, CytoscapeNodeData } from '@/types/skill-tree';
 import DetailPanel from './DetailPanel';
 import ContextMenu from './ContextMenu';
+import AIGenerateModal from './AIGenerateModal';
+import Toast from './Toast';
 
 interface SkillTreeEditorProps {
   treeId?: string;
@@ -22,6 +24,10 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, onSave }: SkillTr
   const [selectedNode, setSelectedNode] = useState<NodeSingular | null>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [contextMenu, setContextMenu] = useState<{ node: NodeSingular | null; x: number; y: number } | null>(null);
+  const [aiModalOpen, setAiModalOpen] = useState(false);
+  const [aiParentNode, setAiParentNode] = useState<NodeSingular | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
     // Initialize Cytoscape only on client
@@ -125,6 +131,92 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, onSave }: SkillTr
     setContextMenu(null);
   };
 
+  const handleAIGenerate = (nodeId: string) => {
+    const cy = skillTree?.getCytoscapeInstance();
+    const node = cy?.getElementById(nodeId);
+    if (node && node.length > 0) {
+      setAiParentNode(node);
+      setAiModalOpen(true);
+      setContextMenu(null);
+    }
+  };
+
+  const handleAIGenerateSubmit = async (topic: string) => {
+    if (!skillTree || !aiParentNode) return;
+
+    setIsGenerating(true);
+
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          topic,
+          nodeCount: 8,
+          style: 'technical',
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate skill tree');
+      }
+
+      const { tree } = await response.json();
+
+      // Import NodeRenderer
+      const { NodeRenderer } = await import('@/lib/skill-tree/NodeRenderer');
+      const cy = skillTree.getCytoscapeInstance();
+      if (!cy) return;
+
+      // Get parent node color to inherit
+      const parentIconData = aiParentNode.data('iconData');
+      const parentColor = parentIconData?.color || '#6366f1';
+
+      // Add all generated nodes as children of the selected node
+      const parentId = aiParentNode.id();
+      const parentPos = aiParentNode.position();
+
+      tree.nodes.forEach((nodeData: any, index: number) => {
+        // Skip the root node from AI generation, use existing parent
+        if (nodeData.parent === null) return;
+
+        const newNodeData = NodeRenderer.createNode(
+          nodeData.label,
+          parentId,
+          {
+            type: 'emoji' as const,
+            icon: nodeData.iconData?.icon || '',
+            color: parentColor, // Inherit parent color
+          }
+        );
+
+        newNodeData.description = nodeData.description || '';
+        newNodeData.weight = nodeData.weight || 5;
+
+        const cyNode = NodeRenderer.toCytoscapeNode(newNodeData);
+        cyNode.position = {
+          x: parentPos.x + (index % 3) * 150 - 150,
+          y: parentPos.y + Math.floor(index / 3) * 150 + 150,
+        };
+
+        cy.add(cyNode);
+        cy.add(NodeRenderer.createEdge(parentId, newNodeData.id));
+      });
+
+      // Update lock states and layout
+      NodeRenderer.recalculateAllLockStates(cy);
+      await skillTree.applyLayout(true);
+
+      setToast({ message: 'Skill tree generated successfully!', type: 'success' });
+      setAiModalOpen(false);
+    } catch (error) {
+      console.error('AI generation error:', error);
+      setToast({ message: 'Failed to generate skill tree', type: 'error' });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <div className="flex-1 relative bg-gray-900">
       {loading && (
@@ -147,6 +239,7 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, onSave }: SkillTr
           position={{ x: contextMenu.x, y: contextMenu.y }}
           onClose={() => setContextMenu(null)}
           onAddChild={handleAddChild}
+          onAIGenerate={handleAIGenerate}
           onEdit={() => {
             setSelectedNode(contextMenu.node);
             setIsPanelOpen(true);
@@ -156,6 +249,15 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, onSave }: SkillTr
           onDelete={handleDelete}
         />
       )}
+
+      <AIGenerateModal
+        isOpen={aiModalOpen}
+        onClose={() => setAiModalOpen(false)}
+        onGenerate={handleAIGenerateSubmit}
+        isGenerating={isGenerating}
+      />
+
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   );
 }
