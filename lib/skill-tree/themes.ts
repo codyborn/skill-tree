@@ -46,18 +46,14 @@ export const ThemeManager = {
             const iconData = node.data('iconData') || { color: '#6366f1' };
             return iconData.color;
           },
-          'background-opacity': (node: any) => {
-            const locked = node.data('locked');
-            return locked ? 0.4 : 1;
-          },
+          'background-opacity': 1,
           'border-color': (node: any) => {
-            // Background ring color (unfilled portion) - theme aware
-            const locked = node.data('locked');
+            // Border color - theme aware
             if (isDark) {
-              return locked ? '#2d2d3d' : '#3d3d4d';
+              return '#3d3d4d';
             }
             // Light mode - darker border for contrast
-            return locked ? '#94a3b8' : '#64748b';
+            return '#64748b';
           },
           'border-width': 6,
           'border-style': 'solid',
@@ -80,10 +76,7 @@ export const ThemeManager = {
             return iconData.type === 'emoji' ? iconData.icon : '';
           },
           color: isDark ? '#ffffff' : '#1a1a2e',
-          'text-opacity': (node: any) => {
-            const locked = node.data('locked');
-            return locked ? 0.3 : 1;
-          },
+          'text-opacity': 1,
           'text-valign': 'center',
           'text-halign': 'center',
           'font-size': (node: any) => {
