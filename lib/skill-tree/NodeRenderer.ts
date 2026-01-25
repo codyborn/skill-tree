@@ -18,7 +18,7 @@ export const NodeRenderer = {
   createNode(label: string, parentId: string | null = null, iconData: IconData | null = null): NodeData {
     return {
       id: this.generateId(),
-      label: label || 'New Node',
+      label: label || '',
       description: '',
       completed: false,
       locked: parentId ? true : false, // Root nodes unlocked, children locked

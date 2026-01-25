@@ -311,7 +311,7 @@ export class SkillTree {
 
     // Inherit parent's icon data
     const parentIconData = parentNode.data('iconData');
-    const newNodeData = NodeRenderer.createNode('New Skill', parentId, parentIconData);
+    const newNodeData = NodeRenderer.createNode('', parentId, parentIconData);
 
     // Get parent position for initial placement
     const parentPos = parentNode.position();

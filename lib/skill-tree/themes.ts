@@ -78,8 +78,8 @@ export const ThemeManager = {
             const isHovering = node.data('_hover');
             const weight = node.data('weight') || 1;
 
-            // Scale font size based on weight
-            const scaleFactor = 0.5 + weight * 0.1; // 0.6 for weight 1, 1.0 for weight 5
+            // Scale font size inversely to weight
+            const scaleFactor = 1.5 - weight * 0.1; // 1.4 for weight 1, 0.5 for weight 10
 
             // Smaller font for text labels, larger for emoji icons
             if (!iconData || !iconData.icon) {
@@ -97,14 +97,14 @@ export const ThemeManager = {
           'text-max-width': '60px',
           width: (node: any) => {
             const weight = node.data('weight') || 1;
-            const baseSize = 50 + weight * 8; // Scale based on weight
+            const baseSize = 130 - weight * 8; // Inverse: weight 1 = 122px, weight 10 = 50px
             if (node.data('_hover')) return baseSize + 15;
             if (node.data('_childHighlight')) return baseSize + 10;
             return baseSize;
           },
           height: (node: any) => {
             const weight = node.data('weight') || 1;
-            const baseSize = 50 + weight * 8; // Scale based on weight
+            const baseSize = 130 - weight * 8; // Inverse: weight 1 = 122px, weight 10 = 50px
             if (node.data('_hover')) return baseSize + 15;
             if (node.data('_childHighlight')) return baseSize + 10;
             return baseSize;
