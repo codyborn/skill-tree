@@ -23,7 +23,7 @@ export default function NodeTooltip({ node, position }: NodeTooltipProps) {
 
   if (!node || !position || !isVisible) return null;
 
-  const label = node.data('label') || 'Untitled';
+  const label = node.data('label') || '';
   const description = node.data('description') || '';
   const iconData = node.data('iconData');
   const icon = iconData?.icon || '';
@@ -81,7 +81,9 @@ export default function NodeTooltip({ node, position }: NodeTooltipProps) {
               {icon}
             </div>
           )}
-          <h3 className="text-white font-bold text-lg flex-1 line-clamp-2">{label}</h3>
+          {label && (
+            <h3 className="text-white font-bold text-lg flex-1 line-clamp-2">{label}</h3>
+          )}
         </div>
 
         {/* Description */}

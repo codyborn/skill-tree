@@ -86,7 +86,7 @@ export default function SharePage({ params }: { params: { id: string } }) {
           </div>
         </div>
       </header>
-      <SkillTreeEditor initialData={shareData.tree.data as any} readOnly />
+      <SkillTreeEditor initialData={shareData.tree.data as any} readOnly shareId={params.id} />
     </div>
   );
 }

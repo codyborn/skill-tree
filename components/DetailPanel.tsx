@@ -16,6 +16,17 @@ const PRESET_COLORS = [
   '#ef4444', '#06b6d4', '#14b8a6', '#f97316', '#a855f7'
 ];
 
+const PRESET_EMOJIS = [
+  '🎮', '🎯', '🎨', '🎭', '🎪', '🎬', '🎵', '🎸',
+  '📚', '📖', '✏️', '📝', '💻', '⌨️', '🖥️', '📱',
+  '🏃', '⚽', '🏀', '🎾', '🏊', '🚴', '🧘', '🥋',
+  '🍳', '🍕', '🍜', '☕', '🎂', '🍰', '🥗', '🍱',
+  '✈️', '🚗', '🏠', '🏢', '🏫', '🏥', '🏛️', '🌍',
+  '💡', '🔬', '🔭', '🎓', '📊', '📈', '💰', '💎',
+  '🌟', '⭐', '🔥', '💫', '🌈', '☀️', '🌙', '⚡',
+  '🎁', '🏆', '🥇', '🥈', '🥉', '🏅', '🎖️', '👑',
+];
+
 export default function DetailPanel({ node, isOpen, onClose, onUpdate }: DetailPanelProps) {
   const [label, setLabel] = useState('');
   const [description, setDescription] = useState('');
@@ -192,14 +203,32 @@ export default function DetailPanel({ node, isOpen, onClose, onUpdate }: DetailP
           {/* Icon */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              Icon (emoji or leave empty)
+              Icon (choose or type your own)
             </label>
+            {/* Emoji Picker Grid */}
+            <div className="grid grid-cols-8 gap-1 mb-2 max-h-32 overflow-y-auto p-2 bg-gray-900 rounded border border-gray-700">
+              {PRESET_EMOJIS.map((emoji) => (
+                <button
+                  key={emoji}
+                  type="button"
+                  onClick={() => !isRootNode && handleIconChange({ target: { value: emoji } } as any)}
+                  disabled={isRootNode}
+                  className={`text-2xl p-1 rounded hover:bg-gray-700 transition ${
+                    icon === emoji ? 'bg-gray-700 ring-2 ring-blue-500' : ''
+                  } ${isRootNode ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                  title={emoji}
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+            {/* Custom Emoji Input */}
             <input
               type="text"
               value={icon}
               onChange={handleIconChange}
               disabled={isRootNode}
-              placeholder="🎮"
+              placeholder="Or type custom emoji"
               maxLength={4}
               className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded text-white text-2xl text-center focus:outline-none focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             />

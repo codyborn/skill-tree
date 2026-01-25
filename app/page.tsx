@@ -2,12 +2,26 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import SignInButton from "@/components/SignInButton";
+import prisma from "@/lib/prisma";
 
 export default async function Home() {
   const session = await getServerSession(authOptions);
 
-  if (session) {
-    redirect("/tree/new");
+  if (session?.user?.id) {
+    // Check if user has any existing trees
+    const trees = await prisma.tree.findMany({
+      where: { userId: session.user.id },
+      orderBy: { updatedAt: 'desc' },
+      select: { id: true },
+      take: 1,
+    });
+
+    // Redirect to most recent tree if exists, otherwise create new
+    if (trees.length > 0) {
+      redirect(`/tree/${trees[0].id}`);
+    } else {
+      redirect("/tree/new");
+    }
   }
 
   return (

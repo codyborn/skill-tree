@@ -182,7 +182,8 @@ export const ThemeManager = {
             if (completed) {
               return this.adjustColorBrightness(iconData.color, 1.2);
             }
-            return isDark ? '#3d3a5c' : '#cbd5e1';
+            // More visible: lighter in dark mode, darker in light mode
+            return isDark ? '#6b7280' : '#64748b';
           },
           'target-arrow-color': (edge: any) => {
             const source = edge.source();
@@ -191,19 +192,17 @@ export const ThemeManager = {
             if (completed) {
               return this.adjustColorBrightness(iconData.color, 1.2);
             }
-            return isDark ? '#3d3a5c' : '#cbd5e1';
+            // More visible: lighter in dark mode, darker in light mode
+            return isDark ? '#6b7280' : '#64748b';
           },
           'target-arrow-shape': 'triangle',
           'curve-style': 'bezier',
           'arrow-scale': 1.5,
           opacity: (edge: any) => {
             const source = edge.source();
-            return source.data('completed') ? 1 : 0.6;
+            return source.data('completed') ? 1 : 0.8;
           },
-          'line-style': (edge: any) => {
-            const target = edge.target();
-            return target.data('locked') ? 'dashed' : 'solid';
-          },
+          'line-style': 'solid',
           'transition-property': 'line-color, target-arrow-color, width, opacity',
           'transition-duration': '0.3s',
         },

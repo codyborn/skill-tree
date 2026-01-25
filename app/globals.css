@@ -60,6 +60,10 @@ body {
 }
 
 /* Text colors - theme aware */
+.text-white {
+  color: var(--foreground) !important;
+}
+
 .text-gray-300,
 .text-gray-400 {
   color: var(--foreground);

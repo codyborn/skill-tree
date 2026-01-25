@@ -40,8 +40,8 @@ export default function TreePage({ params }: { params: { id: string } }) {
               group: 'nodes',
               data: {
                 id: 'root',
-                label: 'Root Skill',
-                description: 'Start building your skill tree',
+                label: '',
+                description: 'Right-click to start building your skill tree',
                 completed: false,
                 locked: false,
                 parentId: null,

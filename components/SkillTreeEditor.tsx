@@ -15,10 +15,11 @@ interface SkillTreeEditorProps {
   treeId?: string;
   initialData?: TreeData;
   readOnly?: boolean;
+  shareId?: string;
   onSave?: (data: TreeData) => void | Promise<void>;
 }
 
-function SkillTreeEditorInner({ treeId, initialData, readOnly, onSave }: SkillTreeEditorProps) {
+function SkillTreeEditorInner({ treeId, initialData, readOnly, shareId, onSave }: SkillTreeEditorProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [skillTree, setSkillTree] = useState<SkillTree | null>(null);
   const [loading, setLoading] = useState(true);
@@ -39,8 +40,13 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, onSave }: SkillTr
         const tree = new SkillTreeClass({
           container: containerRef.current!,
           onNodeClick: (node) => {
-            setSelectedNode(node);
-            setIsPanelOpen(true);
+            // Don't open detail panel for root nodes
+            const parentId = node.data('parentId');
+            const isRootNode = parentId === null || parentId === undefined;
+            if (!isRootNode) {
+              setSelectedNode(node);
+              setIsPanelOpen(true);
+            }
           },
           onNodeRightClick: (node, event) => {
             setContextMenu({ node, x: event.clientX, y: event.clientY });
@@ -148,6 +154,42 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, onSave }: SkillTr
     skillTree?.deleteNode(nodeId);
     setIsPanelOpen(false);
     setContextMenu(null);
+  };
+
+  const handleCopySkillset = async (nodeId: string) => {
+    if (!shareId) return;
+
+    try {
+      const response = await fetch('/api/copy-skillset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shareId, nodeId }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          setToast({ message: 'Please sign in to copy skills', type: 'error' });
+          // Redirect to login
+          window.location.href = '/';
+        } else {
+          throw new Error(data.error || 'Failed to copy skillset');
+        }
+        return;
+      }
+
+      setToast({ message: data.message, type: 'success' });
+      setContextMenu(null);
+
+      // Optionally redirect to the user's tree after a delay
+      setTimeout(() => {
+        window.location.href = `/tree/${data.treeId}`;
+      }, 2000);
+    } catch (error) {
+      console.error('Copy skillset error:', error);
+      setToast({ message: 'Failed to copy skillset', type: 'error' });
+    }
   };
 
   const handleAIGenerate = (nodeId: string) => {
@@ -293,6 +335,8 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, onSave }: SkillTr
           }}
           onToggleComplete={handleToggleComplete}
           onDelete={handleDelete}
+          readOnly={readOnly}
+          onCopySkillset={handleCopySkillset}
         />
       )}
 

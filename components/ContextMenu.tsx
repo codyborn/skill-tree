@@ -12,6 +12,8 @@ interface ContextMenuProps {
   onEdit: () => void;
   onToggleComplete: (nodeId: string) => void;
   onDelete: (nodeId: string) => void;
+  readOnly?: boolean;
+  onCopySkillset?: (nodeId: string) => void;
 }
 
 export default function ContextMenu({
@@ -23,6 +25,8 @@ export default function ContextMenu({
   onEdit,
   onToggleComplete,
   onDelete,
+  readOnly = false,
+  onCopySkillset,
 }: ContextMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -85,40 +89,54 @@ export default function ContextMenu({
         top: `${adjustedPosition.y}px`,
       }}
     >
-      <button
-        className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 transition"
-        onClick={() => onAddChild(nodeId)}
-      >
-        Add Child
-      </button>
-      <button
-        className="w-full px-4 py-2 text-left text-blue-400 hover:bg-gray-700 transition"
-        onClick={() => onAIGenerate(nodeId)}
-      >
-        ✨ Add new skill tree
-      </button>
-      {!isRootNode && (
+      {readOnly ? (
+        // Read-only context menu (shared trees)
+        <button
+          className="w-full px-4 py-2 text-left text-green-400 hover:bg-gray-700 transition flex items-center gap-2"
+          onClick={() => onCopySkillset?.(nodeId)}
+        >
+          <span>📋</span>
+          <span>Copy skillset to my tree</span>
+        </button>
+      ) : (
+        // Editable context menu
         <>
-          <hr className="my-2 border-gray-700" />
           <button
             className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 transition"
-            onClick={onEdit}
+            onClick={() => onAddChild(nodeId)}
           >
-            Edit Node
+            Add Child
           </button>
           <button
-            className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 transition"
-            onClick={() => onToggleComplete(nodeId)}
+            className="w-full px-4 py-2 text-left text-blue-400 hover:bg-gray-700 transition"
+            onClick={() => onAIGenerate(nodeId)}
           >
-            {isCompleted ? 'Mark Incomplete' : 'Mark Complete'}
+            ✨ Add new skill tree
           </button>
-          <hr className="my-2 border-gray-700" />
-          <button
-            className="w-full px-4 py-2 text-left text-red-400 hover:bg-gray-700 transition"
-            onClick={handleDelete}
-          >
-            Delete
-          </button>
+          {!isRootNode && (
+            <>
+              <hr className="my-2 border-gray-700" />
+              <button
+                className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 transition"
+                onClick={onEdit}
+              >
+                Edit Node
+              </button>
+              <button
+                className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 transition"
+                onClick={() => onToggleComplete(nodeId)}
+              >
+                {isCompleted ? 'Mark Incomplete' : 'Mark Complete'}
+              </button>
+              <hr className="my-2 border-gray-700" />
+              <button
+                className="w-full px-4 py-2 text-left text-red-400 hover:bg-gray-700 transition"
+                onClick={handleDelete}
+              >
+                Delete
+              </button>
+            </>
+          )}
         </>
       )}
     </div>
