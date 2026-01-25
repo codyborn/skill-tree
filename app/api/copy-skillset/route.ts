@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Share not found or expired' }, { status: 404 });
     }
 
-    const sourceTreeData = share.tree.data as TreeData;
+    const sourceTreeData = share.tree.data as unknown as TreeData;
 
     // Find the node and all its descendants
     const sourceNodes = sourceTreeData.nodes as CytoscapeNode[];
@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const userTreeData = userTree.data as TreeData;
+    const userTreeData = userTree.data as unknown as TreeData;
 
     // Generate new IDs for copied nodes
     const idMap = new Map<string, string>();
@@ -158,7 +158,7 @@ export async function POST(req: NextRequest) {
     // Update tree in database
     await prisma.tree.update({
       where: { id: userTree.id },
-      data: { data: updatedTreeData },
+      data: { data: updatedTreeData as any },
     });
 
     return NextResponse.json({

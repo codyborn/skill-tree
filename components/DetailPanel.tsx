@@ -184,7 +184,7 @@ export default function DetailPanel({ node, isOpen, onClose, onUpdate }: DetailP
           {/* Root Node Warning */}
           {isRootNode && (
             <div className="bg-blue-900/30 border border-blue-700 rounded p-3 text-sm text-blue-200">
-              This is the root node. Add skills underneath it by right-clicking and selecting "Add Child Node".
+              This is the root node. Add skills underneath it by right-clicking and selecting &quot;Add Child Node&quot;.
             </div>
           )}
 
