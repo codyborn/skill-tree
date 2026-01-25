@@ -6,7 +6,7 @@ import AuthProvider from "@/components/AuthProvider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Skill Tree Visualizer",
+  title: "Skill Tree Builder",
   description: "Create, visualize, and track progress through interactive skill trees with AI-powered generation",
 };
 

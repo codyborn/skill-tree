@@ -184,7 +184,7 @@ export default function TreePage({ params }: { params: { id: string } }) {
     <div className="flex flex-col h-screen">
       <header className="bg-gray-800 border-b border-gray-700 px-4 py-3">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-white">Skill Tree Editor</h1>
+          <h1 className="text-xl font-bold text-white">Skill Tree</h1>
           <div className="flex items-center gap-4">
             {isSaving && <span className="text-gray-400 text-sm">Saving...</span>}
             <button

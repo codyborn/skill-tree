@@ -659,9 +659,9 @@ export class SkillTree {
       descendants.forEach((descId) => {
         const descNode = this.cy!.getElementById(descId);
         if (descNode.length) {
-          descNode.show();
+          (descNode as any).show();
           // Also show edges connected to this node
-          descNode.connectedEdges().show();
+          (descNode.connectedEdges() as any).show();
         }
       });
 
@@ -674,9 +674,9 @@ export class SkillTree {
       descendants.forEach((descId) => {
         const descNode = this.cy!.getElementById(descId);
         if (descNode.length) {
-          descNode.hide();
+          (descNode as any).hide();
           // Also hide edges connected to this node
-          descNode.connectedEdges().hide();
+          (descNode.connectedEdges() as any).hide();
         }
       });
 

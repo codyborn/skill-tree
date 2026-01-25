@@ -1,4 +1,4 @@
-# Skill Tree Visualizer
+# Skill Tree Builder
 
 A full-stack Next.js application for creating, visualizing, and tracking progress through interactive skill trees with AI-powered generation.
 
