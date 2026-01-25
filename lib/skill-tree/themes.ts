@@ -63,9 +63,9 @@ export const ThemeManager = {
             const locked = node.data('locked');
             return locked ? '#2d2d3d' : '#3d3d4d';
           },
-          'border-width': 8,
+          'border-width': 6,
           'border-style': 'solid',
-          // Progress ring using background-image SVG
+          // Progress ring using background-image SVG (positioned precisely)
           'background-image': (node: any) => {
             const subtreeCompletion = node.data('subtreeCompletion') || 0;
             if (subtreeCompletion <= 0) return 'none';
@@ -79,8 +79,9 @@ export const ThemeManager = {
           },
           'background-width': '100%',
           'background-height': '100%',
+          'background-position-x': '50%',
+          'background-position-y': '50%',
           'background-clip': 'node',
-          'background-fit': 'cover',
           label: (node: any) => {
             const iconData = node.data('iconData');
             const collapsed = node.data('_collapsed');
@@ -322,9 +323,10 @@ export const ThemeManager = {
    */
   generateProgressRingSVG(progress: number, color: string): string {
     const size = 100;
-    const strokeWidth = 8; // Match border width
-    // Position ring to align with node border
-    const radius = (size / 2) - (strokeWidth / 2);
+    const strokeWidth = 6; // Match border width exactly
+    // Calculate radius to sit exactly on the border
+    // The ring should be drawn from edge to edge with stroke on the border
+    const radius = (size / 2) - (strokeWidth / 2) - 1; // -1 for padding
     const center = size / 2;
     const circumference = 2 * Math.PI * radius;
 
@@ -335,7 +337,7 @@ export const ThemeManager = {
     // SVG with a circular progress arc
     // Rotated -90deg so progress starts from top
     const svg = `
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" preserveAspectRatio="xMidYMid meet">
         <circle
           cx="${center}"
           cy="${center}"
