@@ -52,6 +52,8 @@ export default function ContextMenu({
 
   const nodeId = node.id();
   const isCompleted = node.data('completed');
+  const parentId = node.data('parentId');
+  const isRootNode = parentId === null || parentId === undefined;
 
   // Adjust position if menu would go off-screen
   const adjustedPosition = { ...position };
@@ -95,26 +97,30 @@ export default function ContextMenu({
       >
         ✨ Add new skill tree
       </button>
-      <hr className="my-2 border-gray-700" />
-      <button
-        className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 transition"
-        onClick={onEdit}
-      >
-        Edit Node
-      </button>
-      <button
-        className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 transition"
-        onClick={() => onToggleComplete(nodeId)}
-      >
-        {isCompleted ? 'Mark Incomplete' : 'Mark Complete'}
-      </button>
-      <hr className="my-2 border-gray-700" />
-      <button
-        className="w-full px-4 py-2 text-left text-red-400 hover:bg-gray-700 transition"
-        onClick={handleDelete}
-      >
-        Delete
-      </button>
+      {!isRootNode && (
+        <>
+          <hr className="my-2 border-gray-700" />
+          <button
+            className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 transition"
+            onClick={onEdit}
+          >
+            Edit Node
+          </button>
+          <button
+            className="w-full px-4 py-2 text-left text-white hover:bg-gray-700 transition"
+            onClick={() => onToggleComplete(nodeId)}
+          >
+            {isCompleted ? 'Mark Incomplete' : 'Mark Complete'}
+          </button>
+          <hr className="my-2 border-gray-700" />
+          <button
+            className="w-full px-4 py-2 text-left text-red-400 hover:bg-gray-700 transition"
+            onClick={handleDelete}
+          >
+            Delete
+          </button>
+        </>
+      )}
     </div>
   );
 }

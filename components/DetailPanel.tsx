@@ -24,6 +24,7 @@ export default function DetailPanel({ node, isOpen, onClose, onUpdate }: DetailP
   const [color, setColor] = useState('#6366f1');
   const [icon, setIcon] = useState('');
   const [completedAt, setCompletedAt] = useState<string | null>(null);
+  const [isRootNode, setIsRootNode] = useState(false);
 
   useEffect(() => {
     if (node) {
@@ -31,6 +32,10 @@ export default function DetailPanel({ node, isOpen, onClose, onUpdate }: DetailP
       setDescription(node.data('description') || '');
       setCompleted(node.data('completed') || false);
       setWeight(node.data('weight') || 1);
+
+      // Check if this is the root node (no parent)
+      const parentId = node.data('parentId');
+      setIsRootNode(parentId === null || parentId === undefined);
 
       const iconData = node.data('iconData');
       if (iconData) {
@@ -165,6 +170,13 @@ export default function DetailPanel({ node, isOpen, onClose, onUpdate }: DetailP
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {/* Root Node Warning */}
+          {isRootNode && (
+            <div className="bg-blue-900/30 border border-blue-700 rounded p-3 text-sm text-blue-200">
+              This is the root node. Add skills underneath it by right-clicking and selecting "Add Child Node".
+            </div>
+          )}
+
           {/* Label */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">Label</label>
@@ -172,7 +184,8 @@ export default function DetailPanel({ node, isOpen, onClose, onUpdate }: DetailP
               type="text"
               value={label}
               onChange={handleLabelChange}
-              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded text-white focus:outline-none focus:border-blue-500"
+              disabled={isRootNode}
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded text-white focus:outline-none focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
 
@@ -185,9 +198,10 @@ export default function DetailPanel({ node, isOpen, onClose, onUpdate }: DetailP
               type="text"
               value={icon}
               onChange={handleIconChange}
+              disabled={isRootNode}
               placeholder="🎮"
               maxLength={4}
-              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded text-white text-2xl text-center focus:outline-none focus:border-blue-500"
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded text-white text-2xl text-center focus:outline-none focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
 
@@ -198,10 +212,11 @@ export default function DetailPanel({ node, isOpen, onClose, onUpdate }: DetailP
               {PRESET_COLORS.map((presetColor) => (
                 <button
                   key={presetColor}
-                  onClick={() => handleColorChange(presetColor)}
+                  onClick={() => !isRootNode && handleColorChange(presetColor)}
+                  disabled={isRootNode}
                   className={`w-10 h-10 rounded border-2 transition ${
                     color === presetColor ? 'border-white scale-110' : 'border-gray-600'
-                  }`}
+                  } ${isRootNode ? 'opacity-50 cursor-not-allowed' : ''}`}
                   style={{ backgroundColor: presetColor }}
                   aria-label={`Select color ${presetColor}`}
                 />
@@ -211,7 +226,8 @@ export default function DetailPanel({ node, isOpen, onClose, onUpdate }: DetailP
               type="color"
               value={color}
               onChange={(e) => handleColorChange(e.target.value)}
-              className="w-full mt-2 h-10 rounded bg-gray-900 border border-gray-700 cursor-pointer"
+              disabled={isRootNode}
+              className="w-full mt-2 h-10 rounded bg-gray-900 border border-gray-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
 
@@ -221,14 +237,15 @@ export default function DetailPanel({ node, isOpen, onClose, onUpdate }: DetailP
             <textarea
               value={description}
               onChange={handleDescriptionChange}
+              disabled={isRootNode}
               rows={6}
-              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded text-white focus:outline-none focus:border-blue-500 resize-none"
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded text-white focus:outline-none focus:border-blue-500 resize-none disabled:opacity-50 disabled:cursor-not-allowed"
               placeholder="Add description (markdown supported)..."
             />
           </div>
 
           {/* Completion Button - Hide for root nodes */}
-          {!isRoot && (
+          {!isRootNode && (
             <div>
               <button
                 onClick={handleCompletedToggle}
@@ -275,7 +292,8 @@ export default function DetailPanel({ node, isOpen, onClose, onUpdate }: DetailP
               max="10"
               value={weight}
               onChange={handleWeightChange}
-              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded text-white focus:outline-none focus:border-blue-500"
+              disabled={isRootNode}
+              className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded text-white focus:outline-none focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
 
