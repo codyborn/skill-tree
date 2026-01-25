@@ -44,21 +44,11 @@ export const ThemeManager = {
         style: {
           'background-color': (node: any) => {
             const iconData = node.data('iconData') || { color: '#6366f1' };
-            const completed = node.data('completed');
-            const subtreeCompletion = Number(node.data('subtreeCompletion')) || 0;
-            // Full color if node is completed OR if subtree has any progress
-            const shouldBeFullColor = completed || subtreeCompletion > 0;
-            return shouldBeFullColor
-              ? iconData.color
-              : this.desaturateColor(iconData.color, 0.6);
+            return iconData.color;
           },
           'background-opacity': (node: any) => {
             const locked = node.data('locked');
-            if (locked) return 0.4;
-            const completed = node.data('completed');
-            const subtreeCompletion = Number(node.data('subtreeCompletion')) || 0;
-            // Full opacity if node is completed OR if subtree has any progress
-            return (completed || subtreeCompletion > 0) ? 1 : 0.7;
+            return locked ? 0.4 : 1;
           },
           'border-color': (node: any) => {
             // Background ring color (unfilled portion) - theme aware
@@ -92,11 +82,7 @@ export const ThemeManager = {
           color: isDark ? '#ffffff' : '#1a1a2e',
           'text-opacity': (node: any) => {
             const locked = node.data('locked');
-            if (locked) return 0.3;
-            const completed = node.data('completed');
-            const subtreeCompletion = Number(node.data('subtreeCompletion')) || 0;
-            // Full opacity if node is completed OR if subtree has any progress
-            return (completed || subtreeCompletion > 0) ? 1 : 0.5;
+            return locked ? 0.3 : 1;
           },
           'text-valign': 'center',
           'text-halign': 'center',
@@ -281,68 +267,4 @@ export const ThemeManager = {
     );
   },
 
-  /**
-   * Desaturate a color (make it more gray)
-   * @param color - Hex color string
-   * @param amount - Amount to desaturate (0 = full color, 1 = grayscale)
-   */
-  desaturateColor(color: string, amount: number): string {
-    const hex = color.replace('#', '');
-    const r = parseInt(hex.substr(0, 2), 16);
-    const g = parseInt(hex.substr(2, 2), 16);
-    const b = parseInt(hex.substr(4, 2), 16);
-
-    // Calculate grayscale value (luminance)
-    const gray = Math.floor(0.299 * r + 0.587 * g + 0.114 * b);
-
-    // Blend between original color and grayscale
-    const newR = Math.floor(r + (gray - r) * amount);
-    const newG = Math.floor(g + (gray - g) * amount);
-    const newB = Math.floor(b + (gray - b) * amount);
-
-    return (
-      '#' + ((1 << 24) + (newR << 16) + (newG << 8) + newB).toString(16).slice(1)
-    );
-  },
-
-  /**
-   * Generate an SVG progress ring as a data URI
-   * @param progress - Progress value from 0 to 1
-   * @param color - Color of the progress arc
-   */
-  generateProgressRingSVG(progress: number, color: string): string {
-    const size = 100;
-    const strokeWidth = 6; // Match border width exactly
-    // Calculate radius so the outer edge of the stroke touches the SVG edge
-    // With strokeWidth 6, stroke extends 3px on each side of the path
-    // So radius should be: center (50) - half strokeWidth (3) = 47
-    const radius = (size / 2) - (strokeWidth / 2);
-    const center = size / 2;
-    const circumference = 2 * Math.PI * radius;
-
-    // Calculate the arc path using stroke-dasharray
-    const dashArray = circumference;
-    const dashOffset = circumference * (1 - progress);
-
-    // SVG with a circular progress arc
-    // Rotated -90deg so progress starts from top
-    const svg = `
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" preserveAspectRatio="xMidYMid meet">
-        <circle
-          cx="${center}"
-          cy="${center}"
-          r="${radius}"
-          fill="none"
-          stroke="${color}"
-          stroke-width="${strokeWidth}"
-          stroke-dasharray="${dashArray}"
-          stroke-dashoffset="${dashOffset}"
-          stroke-linecap="round"
-          transform="rotate(-90 ${center} ${center})"
-        />
-      </svg>
-    `.trim().replace(/\s+/g, ' ');
-
-    return `data:image/svg+xml,${encodeURIComponent(svg)}`;
-  },
 };
