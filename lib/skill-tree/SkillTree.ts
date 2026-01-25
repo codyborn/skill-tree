@@ -285,7 +285,7 @@ export class SkillTree {
       padding: 50,
       // Node dimensions (helps with spacing)
       nodeDimensionsIncludeLabels: true,
-    });
+    } as any); // Type assertion for dagre-specific options
 
     layout.run();
 
