@@ -172,17 +172,17 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, onSave }: SkillTr
       const parentIconData = aiParentNode.data('iconData');
       const parentColor = parentIconData?.color || '#6366f1';
 
-      // Add all generated nodes as children of the selected node
-      const parentId = aiParentNode.id();
+      const selectedParentId = aiParentNode.id();
       const parentPos = aiParentNode.position();
 
-      tree.nodes.forEach((nodeData: any, index: number) => {
-        // Skip the root node from AI generation, use existing parent
-        if (nodeData.parent === null) return;
+      // Build a mapping from old IDs to new IDs
+      const idMap = new Map<string, string>();
 
+      // First pass: Create all nodes and map old IDs to new IDs
+      tree.nodes.forEach((nodeData: any, index: number) => {
         const newNodeData = NodeRenderer.createNode(
           nodeData.label,
-          parentId,
+          null, // Will set parent in second pass
           {
             type: 'emoji' as const,
             icon: nodeData.iconData?.icon || '',
@@ -193,6 +193,9 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, onSave }: SkillTr
         newNodeData.description = nodeData.description || '';
         newNodeData.weight = nodeData.weight || 5;
 
+        // Map old ID to new ID
+        idMap.set(nodeData.id, newNodeData.id);
+
         const cyNode = NodeRenderer.toCytoscapeNode(newNodeData);
         cyNode.position = {
           x: parentPos.x + (index % 3) * 150 - 150,
@@ -200,7 +203,29 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, onSave }: SkillTr
         };
 
         cy.add(cyNode);
-        cy.add(NodeRenderer.createEdge(parentId, newNodeData.id));
+      });
+
+      // Second pass: Create edges with proper parent-child relationships
+      tree.nodes.forEach((nodeData: any) => {
+        const newNodeId = idMap.get(nodeData.id);
+        if (!newNodeId) return;
+
+        const node = cy.getElementById(newNodeId);
+
+        if (nodeData.parent === null) {
+          // This is the root of the AI tree, connect to selected parent
+          node.data('parentId', selectedParentId);
+          node.data('prerequisites', [selectedParentId]);
+          cy.add(NodeRenderer.createEdge(selectedParentId, newNodeId));
+        } else {
+          // This node has a parent in the AI tree
+          const newParentId = idMap.get(nodeData.parent);
+          if (newParentId) {
+            node.data('parentId', newParentId);
+            node.data('prerequisites', [newParentId]);
+            cy.add(NodeRenderer.createEdge(newParentId, newNodeId));
+          }
+        }
       });
 
       // Update lock states and layout
