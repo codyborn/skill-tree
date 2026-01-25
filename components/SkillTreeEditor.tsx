@@ -218,13 +218,13 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, onSave }: SkillTr
   };
 
   return (
-    <div className="flex-1 relative bg-gray-900">
+    <div className="flex-1 relative" style={{ backgroundColor: 'var(--graph-bg)' }}>
       {loading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gray-900">
+        <div className="absolute inset-0 flex items-center justify-center" style={{ backgroundColor: 'var(--graph-bg)' }}>
           <div className="text-white text-xl">Loading skill tree...</div>
         </div>
       )}
-      <div ref={containerRef} className="w-full h-full" style={{ minHeight: '600px' }} />
+      <div ref={containerRef} className="w-full h-full" style={{ minHeight: '600px', backgroundColor: 'var(--graph-bg)' }} />
 
       <DetailPanel
         node={selectedNode}

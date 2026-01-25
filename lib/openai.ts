@@ -57,7 +57,7 @@ Requirements:
 
   try {
     const response = await openai.chat.completions.create({
-      model: 'gpt-4',
+      model: 'gpt-4o-mini', // Use more cost-effective model
       messages: [
         {
           role: 'system',
@@ -77,8 +77,9 @@ Requirements:
 
     const parsed = JSON.parse(content);
     return parsed as AIGenerationResponse;
-  } catch (error) {
+  } catch (error: any) {
     console.error('OpenAI generation error:', error);
-    throw new Error('Failed to generate skill tree');
+    // Pass through the actual error message
+    throw new Error(error?.message || 'Failed to generate skill tree');
   }
 }

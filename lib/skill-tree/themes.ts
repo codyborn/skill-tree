@@ -57,10 +57,10 @@ export const ThemeManager = {
             const iconData = node.data('iconData') || { color: '#6366f1' };
             const completed = node.data('completed');
             return completed
-              ? '#fbbf24'
+              ? '#10b981'
               : this.adjustColorBrightness(iconData.color, 1.2);
           },
-          'border-width': (node: any) => (node.data('completed') ? 6 : 4),
+          'border-width': (node: any) => (node.data('completed') ? 5 : 3),
           label: (node: any) => {
             const iconData = node.data('iconData');
             // If no icon data or no icon, show the node's text label
@@ -116,14 +116,9 @@ export const ThemeManager = {
       {
         selector: 'node:selected',
         style: {
-          'border-width': 8,
-          'border-color': '#fbbf24',
-          'overlay-color': (node: any) => {
-            const iconData = node.data('iconData') || { color: '#6366f1' };
-            return iconData.color;
-          },
-          'overlay-opacity': 0.3,
-          'overlay-padding': 10,
+          'border-width': 5,
+          'border-color': '#3b82f6',
+          'overlay-opacity': 0,
         },
       },
       {
@@ -151,11 +146,9 @@ export const ThemeManager = {
       {
         selector: 'node[_selected]',
         style: {
-          'border-width': 8,
-          'border-color': '#fbbf24',
-          'overlay-color': '#fbbf24',
-          'overlay-opacity': 0.3,
-          'overlay-padding': 10,
+          'border-width': 5,
+          'border-color': '#3b82f6',
+          'overlay-opacity': 0,
         },
       },
       {

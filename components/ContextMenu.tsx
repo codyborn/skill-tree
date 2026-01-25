@@ -93,7 +93,7 @@ export default function ContextMenu({
         className="w-full px-4 py-2 text-left text-blue-400 hover:bg-gray-700 transition"
         onClick={() => onAIGenerate(nodeId)}
       >
-        ✨ Add new skill (AI)
+        ✨ Add new skill tree
       </button>
       <hr className="my-2 border-gray-700" />
       <button

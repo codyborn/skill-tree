@@ -53,10 +53,11 @@ export async function POST(req: NextRequest) {
     const treeData = await generateSkillTree({ topic, nodeCount, style });
 
     return NextResponse.json({ tree: treeData });
-  } catch (error) {
+  } catch (error: any) {
     console.error('AI generation error:', error);
+    const errorMessage = error?.message || 'Failed to generate skill tree';
     return NextResponse.json(
-      { error: 'Failed to generate skill tree' },
+      { error: errorMessage, details: error?.toString() },
       { status: 500 }
     );
   }
