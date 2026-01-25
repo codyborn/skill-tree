@@ -44,18 +44,21 @@ export const ThemeManager = {
         style: {
           'background-color': (node: any) => {
             const iconData = node.data('iconData') || { color: '#6366f1' };
+            const completed = node.data('completed');
             const subtreeCompletion = Number(node.data('subtreeCompletion')) || 0;
-            // Grayed out only if no progress (0), fully colored otherwise
-            return subtreeCompletion > 0
+            // Full color if node is completed OR if subtree has any progress
+            const shouldBeFullColor = completed || subtreeCompletion > 0;
+            return shouldBeFullColor
               ? iconData.color
               : this.desaturateColor(iconData.color, 0.6);
           },
           'background-opacity': (node: any) => {
             const locked = node.data('locked');
             if (locked) return 0.4;
+            const completed = node.data('completed');
             const subtreeCompletion = Number(node.data('subtreeCompletion')) || 0;
-            // Stronger opacity in light mode for better visibility
-            return subtreeCompletion > 0 ? 1 : 0.7;
+            // Full opacity if node is completed OR if subtree has any progress
+            return (completed || subtreeCompletion > 0) ? 1 : 0.7;
           },
           'border-color': (node: any) => {
             // Background ring color (unfilled portion) - theme aware
@@ -90,8 +93,10 @@ export const ThemeManager = {
           'text-opacity': (node: any) => {
             const locked = node.data('locked');
             if (locked) return 0.3;
+            const completed = node.data('completed');
             const subtreeCompletion = Number(node.data('subtreeCompletion')) || 0;
-            return subtreeCompletion > 0 ? 1 : 0.5;
+            // Full opacity if node is completed OR if subtree has any progress
+            return (completed || subtreeCompletion > 0) ? 1 : 0.5;
           },
           'text-valign': 'center',
           'text-halign': 'center',
