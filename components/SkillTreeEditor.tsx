@@ -9,6 +9,7 @@ import DetailPanel from './DetailPanel';
 import ContextMenu from './ContextMenu';
 import AIGenerateModal from './AIGenerateModal';
 import Toast from './Toast';
+import NodeTooltip from './NodeTooltip';
 
 interface SkillTreeEditorProps {
   treeId?: string;
@@ -28,6 +29,8 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, onSave }: SkillTr
   const [aiParentNode, setAiParentNode] = useState<NodeSingular | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [hoveredNode, setHoveredNode] = useState<NodeSingular | null>(null);
+  const [hoverPosition, setHoverPosition] = useState<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     // Initialize Cytoscape only on client
@@ -63,6 +66,22 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, onSave }: SkillTr
           }
           setSkillTree(tree);
           setLoading(false);
+
+          // Set up hover listeners for tooltip
+          const cy = tree.getCytoscapeInstance();
+          if (cy) {
+            cy.on('mouseover', 'node', (evt) => {
+              const node = evt.target;
+              const renderedPos = node.renderedPosition();
+              setHoveredNode(node);
+              setHoverPosition({ x: renderedPos.x, y: renderedPos.y });
+            });
+
+            cy.on('mouseout', 'node', () => {
+              setHoveredNode(null);
+              setHoverPosition(null);
+            });
+          }
         });
       });
     }
@@ -285,6 +304,8 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, onSave }: SkillTr
       />
 
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+
+      <NodeTooltip node={hoveredNode} position={hoverPosition} />
     </div>
   );
 }
