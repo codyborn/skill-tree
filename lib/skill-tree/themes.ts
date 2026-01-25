@@ -44,9 +44,16 @@ export const ThemeManager = {
         style: {
           'background-color': (node: any) => {
             const iconData = node.data('iconData') || { color: '#6366f1' };
-            return iconData.color;
+            const subtreeCompletion = Number(node.data('subtreeCompletion')) || 0;
+            // Gray out if no progress in subtree
+            return subtreeCompletion === 0
+              ? this.desaturateColor(iconData.color, 0.6)
+              : iconData.color;
           },
-          'background-opacity': 1,
+          'background-opacity': (node: any) => {
+            const subtreeCompletion = Number(node.data('subtreeCompletion')) || 0;
+            return subtreeCompletion === 0 ? 0.5 : 1;
+          },
           'border-color': (node: any) => {
             // Border color - theme aware
             if (isDark) {
@@ -76,7 +83,10 @@ export const ThemeManager = {
             return iconData.type === 'emoji' ? iconData.icon : '';
           },
           color: isDark ? '#ffffff' : '#1a1a2e',
-          'text-opacity': 1,
+          'text-opacity': (node: any) => {
+            const subtreeCompletion = Number(node.data('subtreeCompletion')) || 0;
+            return subtreeCompletion === 0 ? 0.5 : 1;
+          },
           'text-valign': 'center',
           'text-halign': 'center',
           'font-size': (node: any) => {
@@ -255,6 +265,30 @@ export const ThemeManager = {
     const newB = Math.min(255, Math.floor(b * factor));
 
     // Convert back to hex
+    return (
+      '#' + ((1 << 24) + (newR << 16) + (newG << 8) + newB).toString(16).slice(1)
+    );
+  },
+
+  /**
+   * Desaturate a color (make it more gray)
+   * @param color - Hex color string
+   * @param amount - Amount to desaturate (0 = full color, 1 = grayscale)
+   */
+  desaturateColor(color: string, amount: number): string {
+    const hex = color.replace('#', '');
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+
+    // Calculate grayscale value (luminance)
+    const gray = Math.floor(0.299 * r + 0.587 * g + 0.114 * b);
+
+    // Blend between original color and grayscale
+    const newR = Math.floor(r + (gray - r) * amount);
+    const newG = Math.floor(g + (gray - g) * amount);
+    const newB = Math.floor(b + (gray - b) * amount);
+
     return (
       '#' + ((1 << 24) + (newR << 16) + (newG << 8) + newB).toString(16).slice(1)
     );
