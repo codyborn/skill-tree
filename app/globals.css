@@ -3,14 +3,18 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --card-bg: #f9fafb;
-  --border-color: #e5e7eb;
-  --header-bg: #f3f4f6;
-  --input-bg: #ffffff;
-  --input-border: #d1d5db;
-  --graph-bg: #f9fafb;
+  --background: #f8fafc;
+  --foreground: #1e293b;
+  --card-bg: #ffffff;
+  --border-color: #cbd5e1;
+  --header-bg: #e2e8f0;
+  --input-bg: #f1f5f9;
+  --input-border: #94a3b8;
+  --graph-bg: #f1f5f9;
+  --button-bg: #cbd5e1;
+  --button-hover: #94a3b8;
+  --text-on-button: #1e293b;
+  --node-bg-opacity: 0.85;
 }
 
 [data-theme='dark'] {
@@ -22,6 +26,10 @@
   --input-bg: #111827;
   --input-border: #4b5563;
   --graph-bg: #0f172a;
+  --button-bg: #374151;
+  --button-hover: #4b5563;
+  --text-on-button: #f9fafb;
+  --node-bg-opacity: 1;
 }
 
 body {
@@ -30,7 +38,7 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Update component styles */
+/* Update component styles for theme support */
 .bg-gray-800 {
   background-color: var(--header-bg) !important;
 }
@@ -39,18 +47,33 @@ body {
   background-color: var(--input-bg) !important;
 }
 
+.bg-gray-700 {
+  background-color: var(--button-bg) !important;
+}
+
+.hover\:bg-gray-600:hover {
+  background-color: var(--button-hover) !important;
+}
+
 .border-gray-700 {
   border-color: var(--border-color) !important;
 }
 
+/* Text colors - theme aware */
 .text-white {
-  color: white !important;
+  color: var(--text-on-button) !important;
 }
 
 .text-gray-300,
 .text-gray-400 {
   color: var(--foreground);
   opacity: 0.7;
+}
+
+/* Ensure header title text is readable */
+header .text-white,
+header .text-xl {
+  color: var(--foreground) !important;
 }
 
 @layer utilities {

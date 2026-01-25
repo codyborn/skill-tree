@@ -52,40 +52,22 @@ export const ThemeManager = {
           },
           'background-opacity': (node: any) => {
             const locked = node.data('locked');
-            if (locked) return 0.3;
+            if (locked) return 0.4;
             const subtreeCompletion = Number(node.data('subtreeCompletion')) || 0;
-            return subtreeCompletion > 0 ? 1 : 0.5;
+            // Stronger opacity in light mode for better visibility
+            return subtreeCompletion > 0 ? 1 : 0.7;
           },
           'border-color': (node: any) => {
-            // Background ring color (unfilled portion) - gray track
+            // Background ring color (unfilled portion) - theme aware
             const locked = node.data('locked');
-            return locked ? '#2d2d3d' : '#3d3d4d';
+            if (isDark) {
+              return locked ? '#2d2d3d' : '#3d3d4d';
+            }
+            // Light mode - darker border for contrast
+            return locked ? '#94a3b8' : '#64748b';
           },
           'border-width': 6,
           'border-style': 'solid',
-          // Progress ring using background-image SVG (positioned precisely)
-          'background-image': (node: any) => {
-            const subtreeCompletion = Number(node.data('subtreeCompletion')) || 0;
-            if (subtreeCompletion <= 0) return 'none';
-
-            const iconData = node.data('iconData') || { color: '#6366f1' };
-            return this.generateProgressRingSVG(subtreeCompletion, iconData.color);
-          },
-          'background-width': (node: any) => {
-            const nodeWidth = node.width();
-            const borderWidth = 6;
-            // Background needs to extend to cover the border area
-            // Percentage: (nodeWidth + borderWidth*2) / nodeWidth * 100
-            return ((nodeWidth + borderWidth * 2) / nodeWidth * 100) + '%';
-          },
-          'background-height': (node: any) => {
-            const nodeHeight = node.height();
-            const borderWidth = 6;
-            return ((nodeHeight + borderWidth * 2) / nodeHeight * 100) + '%';
-          },
-          'background-position-x': '50%',
-          'background-position-y': '50%',
-          'background-clip': 'none',
           label: (node: any) => {
             const iconData = node.data('iconData');
             const collapsed = node.data('_collapsed');

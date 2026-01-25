@@ -617,22 +617,8 @@ export class SkillTree {
     // Clear previous highlights
     this.clearAllHighlights();
 
-    // Dynamic import for NodeRenderer
-    import('./NodeRenderer').then(({ NodeRenderer }) => {
-      // Get all descendants
-      const descendants = NodeRenderer.getAllDescendants(this.cy!, node.id());
-
-      // Highlight the selected node
-      node.data('_selected', true);
-
-      // Highlight all descendants
-      descendants.forEach((descId) => {
-        const descNode = this.cy!.getElementById(descId);
-        if (descNode.length) {
-          descNode.data('_childHighlight', true);
-        }
-      });
-    });
+    // Highlight only the selected node
+    node.data('_selected', true);
   }
 
   clearAllHighlights() {
