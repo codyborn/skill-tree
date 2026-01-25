@@ -173,13 +173,12 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, onSave }: SkillTr
       const parentColor = parentIconData?.color || '#6366f1';
 
       const selectedParentId = aiParentNode.id();
-      const parentPos = aiParentNode.position();
 
       // Build a mapping from old IDs to new IDs
       const idMap = new Map<string, string>();
 
       // First pass: Create all nodes and map old IDs to new IDs
-      tree.nodes.forEach((nodeData: any, index: number) => {
+      tree.nodes.forEach((nodeData: any) => {
         const newNodeData = NodeRenderer.createNode(
           nodeData.label,
           null, // Will set parent in second pass
@@ -197,11 +196,7 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, onSave }: SkillTr
         idMap.set(nodeData.id, newNodeData.id);
 
         const cyNode = NodeRenderer.toCytoscapeNode(newNodeData);
-        cyNode.position = {
-          x: parentPos.x + (index % 3) * 150 - 150,
-          y: parentPos.y + Math.floor(index / 3) * 150 + 150,
-        };
-
+        // Don't set position - let layout algorithm handle it
         cy.add(cyNode);
       });
 
@@ -230,7 +225,14 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, onSave }: SkillTr
 
       // Update lock states and layout
       NodeRenderer.recalculateAllLockStates(cy);
+      NodeRenderer.updateAllSubtreeCompletions(cy);
       await skillTree.applyLayout(true);
+
+      // Trigger save after generation
+      if (onSave && skillTree) {
+        const data = skillTree.getTreeData();
+        onSave(data);
+      }
 
       setToast({ message: 'Skill tree generated successfully!', type: 'success' });
       setAiModalOpen(false);

@@ -273,29 +273,18 @@ export class SkillTree {
     this.cy.stop();
 
     const layout = this.cy.layout({
-      name: 'cose',
-      // Animation
+      name: 'dagre',
+      // Dagre-specific options for tree layout
+      rankDir: 'TB', // Top to bottom
+      nodeSep: 80, // Horizontal separation between nodes
+      rankSep: 120, // Vertical separation between ranks
       animate: animate,
       animationDuration: 800,
       animationEasing: 'ease-out',
-      // Separation and forces
-      idealEdgeLength: 120,
-      nodeOverlap: 20,
-      refresh: 20,
-      // Randomization & iterations
-      randomize: false,
-      componentSpacing: 100,
-      nodeRepulsion: 400000,
-      edgeElasticity: 100,
-      nestingFactor: 5,
-      gravity: 80,
-      numIter: 1000,
-      initialTemp: 200,
-      coolingFactor: 0.95,
-      minTemp: 1.0,
-      // Layout boundaries
       fit: true,
       padding: 50,
+      // Node dimensions (helps with spacing)
+      nodeDimensionsIncludeLabels: true,
     });
 
     layout.run();
