@@ -44,18 +44,18 @@ export const ThemeManager = {
         style: {
           'background-color': (node: any) => {
             const iconData = node.data('iconData') || { color: '#6366f1' };
-            const completed = node.data('completed');
+            const subtreeCompletion = node.data('subtreeCompletion') || 0;
             const color = iconData.color;
-            // Completed nodes get full brightness, incomplete nodes are grayed out
-            return completed 
+            // Fully colored if any progress, grayed out only if 0% progress
+            return subtreeCompletion > 0
               ? this.adjustColorBrightness(color, 1.0)
               : this.desaturateColor(color, 0.6);
           },
           'background-opacity': (node: any) => {
             const locked = node.data('locked');
-            const completed = node.data('completed');
+            const subtreeCompletion = node.data('subtreeCompletion') || 0;
             if (locked) return 0.3;
-            if (!completed) return 0.5;
+            if (subtreeCompletion === 0) return 0.5;
             return 1;
           },
           'border-color': (node: any) => {
@@ -69,18 +69,18 @@ export const ThemeManager = {
           'background-image': (node: any) => {
             const subtreeCompletion = node.data('subtreeCompletion') || 0;
             if (subtreeCompletion <= 0) return 'none';
-            
+
             const iconData = node.data('iconData') || { color: '#6366f1' };
-            const progressColor = subtreeCompletion >= 1 
-              ? '#10b981' 
+            const progressColor = subtreeCompletion >= 1
+              ? '#10b981'
               : this.adjustColorBrightness(iconData.color, 1.4);
-            
+
             return this.generateProgressRingSVG(subtreeCompletion, progressColor);
           },
-          'background-width': '115%',
-          'background-height': '115%',
-          'background-clip': 'none',
-          'bounds-expansion': 10,
+          'background-width': '100%',
+          'background-height': '100%',
+          'background-clip': 'node',
+          'background-fit': 'cover',
           label: (node: any) => {
             const iconData = node.data('iconData');
             const collapsed = node.data('_collapsed');
@@ -101,11 +101,11 @@ export const ThemeManager = {
           },
           color: isDark ? '#ffffff' : '#1a1a2e',
           'text-opacity': (node: any) => {
-            const completed = node.data('completed');
+            const subtreeCompletion = node.data('subtreeCompletion') || 0;
             const locked = node.data('locked');
-            // Gray out icon/text for incomplete nodes
+            // Gray out icon/text only if no progress
             if (locked) return 0.3;
-            if (!completed) return 0.5;
+            if (subtreeCompletion === 0) return 0.5;
             return 1;
           },
           'text-valign': 'center',
@@ -322,16 +322,16 @@ export const ThemeManager = {
    */
   generateProgressRingSVG(progress: number, color: string): string {
     const size = 100;
-    const strokeWidth = 6;
-    // Position ring at the outer edge of the SVG
+    const strokeWidth = 8; // Match border width
+    // Position ring to align with node border
     const radius = (size / 2) - (strokeWidth / 2);
     const center = size / 2;
     const circumference = 2 * Math.PI * radius;
-    
+
     // Calculate the arc path using stroke-dasharray
     const dashArray = circumference;
     const dashOffset = circumference * (1 - progress);
-    
+
     // SVG with a circular progress arc
     // Rotated -90deg so progress starts from top
     const svg = `
@@ -350,7 +350,7 @@ export const ThemeManager = {
         />
       </svg>
     `.trim().replace(/\s+/g, ' ');
-    
+
     return `data:image/svg+xml,${encodeURIComponent(svg)}`;
   },
 };

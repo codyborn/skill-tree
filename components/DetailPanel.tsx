@@ -82,8 +82,8 @@ export default function DetailPanel({ node, isOpen, onClose, onUpdate }: DetailP
     onUpdate(nodeId, { description: newDescription });
   };
 
-  const handleCompletedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newCompleted = e.target.checked;
+  const handleCompletedToggle = () => {
+    const newCompleted = !completed;
     setCompleted(newCompleted);
 
     const now = new Date().toISOString();
@@ -227,26 +227,38 @@ export default function DetailPanel({ node, isOpen, onClose, onUpdate }: DetailP
             />
           </div>
 
-          {/* Completed Checkbox - Hide for root nodes */}
+          {/* Completion Button - Hide for root nodes */}
           {!isRoot && (
             <div>
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="completed"
-                  checked={completed}
-                  onChange={handleCompletedChange}
-                  className="w-4 h-4 text-blue-600 bg-gray-900 border-gray-700 rounded focus:ring-blue-500"
-                />
-                <label htmlFor="completed" className="ml-2 text-sm text-gray-300">
-                  Completed
-                </label>
-              </div>
+              <button
+                onClick={handleCompletedToggle}
+                className={`w-full py-4 px-6 rounded-xl font-bold text-lg transition-all duration-300 transform active:scale-95 ${
+                  completed
+                    ? 'bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:from-emerald-400 hover:to-green-500'
+                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white border-2 border-dashed border-gray-500 hover:border-gray-400'
+                }`}
+              >
+                <div className="flex items-center justify-center gap-3">
+                  {completed ? (
+                    <>
+                      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>Completed!</span>
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-6 h-6 rounded-full border-2 border-gray-400" />
+                      <span>Mark Complete</span>
+                    </>
+                  )}
+                </div>
+              </button>
 
               {/* Date Completed - Show when completed */}
               {completed && completedAt && (
-                <div className="mt-2 text-sm text-gray-400">
-                  Completed: {new Date(completedAt).toLocaleDateString()}
+                <div className="mt-3 text-center text-sm text-emerald-400">
+                  ✨ Completed on {new Date(completedAt).toLocaleDateString()}
                 </div>
               )}
             </div>
