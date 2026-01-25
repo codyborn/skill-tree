@@ -13,7 +13,7 @@ export default function TreePage({ params }: { params: { id: string } }) {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [currentTreeId, setCurrentTreeId] = useState(params.id);
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const saveTimeoutRef = useRef<NodeJS.Timeout>();
   const isFirstRender = useRef(true);
 
@@ -23,6 +23,10 @@ export default function TreePage({ params }: { params: { id: string } }) {
     if (savedTheme === 'dark' || savedTheme === 'light') {
       setTheme(savedTheme);
       document.documentElement.setAttribute('data-theme', savedTheme);
+    } else {
+      // Default to dark mode
+      setTheme('dark');
+      document.documentElement.setAttribute('data-theme', 'dark');
     }
   }, []);
 

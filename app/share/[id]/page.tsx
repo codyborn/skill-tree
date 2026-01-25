@@ -8,7 +8,7 @@ export default function SharePage({ params }: { params: { id: string } }) {
   const router = useRouter();
   const [shareData, setShareData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
 
   // Load theme on mount
   useEffect(() => {
@@ -16,6 +16,10 @@ export default function SharePage({ params }: { params: { id: string } }) {
     if (savedTheme === 'dark' || savedTheme === 'light') {
       setTheme(savedTheme);
       document.documentElement.setAttribute('data-theme', savedTheme);
+    } else {
+      // Default to dark mode
+      setTheme('dark');
+      document.documentElement.setAttribute('data-theme', 'dark');
     }
   }, []);
 

@@ -6,7 +6,7 @@
 export type Theme = 'light' | 'dark';
 
 export const ThemeManager = {
-  currentTheme: 'light' as Theme,
+  currentTheme: 'dark' as Theme,
 
   setTheme(theme: Theme): void {
     this.currentTheme = theme;
@@ -24,7 +24,7 @@ export const ThemeManager = {
         return saved;
       }
     }
-    return 'light';
+    return 'dark';
   },
 
   toggleTheme(): void {

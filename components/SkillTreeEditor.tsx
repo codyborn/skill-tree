@@ -112,6 +112,27 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, shareId, onSave }
     return () => window.removeEventListener('themeChanged', handleThemeChange);
   }, [skillTree]);
 
+  // Close detail panel on background click
+  useEffect(() => {
+    const handleBackgroundClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      // Check if click is on the canvas background (not on a node or UI element)
+      if (isPanelOpen && target.tagName === 'CANVAS') {
+        setIsPanelOpen(false);
+      }
+    };
+
+    if (containerRef.current) {
+      containerRef.current.addEventListener('click', handleBackgroundClick);
+    }
+
+    return () => {
+      if (containerRef.current) {
+        containerRef.current.removeEventListener('click', handleBackgroundClick);
+      }
+    };
+  }, [isPanelOpen]);
+
   // ESC key handler
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {

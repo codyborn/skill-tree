@@ -75,7 +75,15 @@ export default function ContextMenu({
   }
 
   const handleDelete = () => {
-    if (confirm('Delete this node and all children?')) {
+    // Check if node has children
+    const hasChildren = node.outgoers('node').length > 0;
+
+    if (hasChildren) {
+      if (confirm('Delete this node and all children?')) {
+        onDelete(nodeId);
+      }
+    } else {
+      // No children, delete without confirmation
       onDelete(nodeId);
     }
   };
