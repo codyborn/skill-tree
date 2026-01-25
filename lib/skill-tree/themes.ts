@@ -44,17 +44,17 @@ export const ThemeManager = {
         style: {
           'background-color': (node: any) => {
             const iconData = node.data('iconData') || { color: '#6366f1' };
-            const subtreeCompletion = node.data('subtreeCompletion') || 0;
-            // Grayed out if no progress, fully colored otherwise
-            return subtreeCompletion === 0
-              ? this.desaturateColor(iconData.color, 0.6)
-              : iconData.color;
+            const subtreeCompletion = Number(node.data('subtreeCompletion')) || 0;
+            // Grayed out only if no progress (0), fully colored otherwise
+            return subtreeCompletion > 0
+              ? iconData.color
+              : this.desaturateColor(iconData.color, 0.6);
           },
           'background-opacity': (node: any) => {
             const locked = node.data('locked');
-            const subtreeCompletion = node.data('subtreeCompletion') || 0;
             if (locked) return 0.3;
-            return subtreeCompletion === 0 ? 0.5 : 1;
+            const subtreeCompletion = Number(node.data('subtreeCompletion')) || 0;
+            return subtreeCompletion > 0 ? 1 : 0.5;
           },
           'border-color': (node: any) => {
             // Background ring color (unfilled portion) - gray track
@@ -65,17 +65,27 @@ export const ThemeManager = {
           'border-style': 'solid',
           // Progress ring using background-image SVG (positioned precisely)
           'background-image': (node: any) => {
-            const subtreeCompletion = node.data('subtreeCompletion') || 0;
+            const subtreeCompletion = Number(node.data('subtreeCompletion')) || 0;
             if (subtreeCompletion <= 0) return 'none';
 
             const iconData = node.data('iconData') || { color: '#6366f1' };
             return this.generateProgressRingSVG(subtreeCompletion, iconData.color);
           },
-          'background-width': '100%',
-          'background-height': '100%',
+          'background-width': (node: any) => {
+            const nodeWidth = node.width();
+            const borderWidth = 6;
+            // Background needs to extend to cover the border area
+            // Percentage: (nodeWidth + borderWidth*2) / nodeWidth * 100
+            return ((nodeWidth + borderWidth * 2) / nodeWidth * 100) + '%';
+          },
+          'background-height': (node: any) => {
+            const nodeHeight = node.height();
+            const borderWidth = 6;
+            return ((nodeHeight + borderWidth * 2) / nodeHeight * 100) + '%';
+          },
           'background-position-x': '50%',
           'background-position-y': '50%',
-          'background-clip': 'node',
+          'background-clip': 'none',
           label: (node: any) => {
             const iconData = node.data('iconData');
             const collapsed = node.data('_collapsed');
@@ -98,8 +108,8 @@ export const ThemeManager = {
           'text-opacity': (node: any) => {
             const locked = node.data('locked');
             if (locked) return 0.3;
-            const subtreeCompletion = node.data('subtreeCompletion') || 0;
-            return subtreeCompletion === 0 ? 0.5 : 1;
+            const subtreeCompletion = Number(node.data('subtreeCompletion')) || 0;
+            return subtreeCompletion > 0 ? 1 : 0.5;
           },
           'text-valign': 'center',
           'text-halign': 'center',
