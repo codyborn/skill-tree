@@ -9,6 +9,16 @@ interface AIGenerateModalProps {
   isGenerating: boolean;
 }
 
+const USAGE_TIPS = [
+  "Remember, AI can make mistakes",
+  "You can manually edit the skill tree after it's ready",
+  "Double click on a skill to collapse it",
+  "Drag and drop skills to restructure your tree",
+  "Right-click nodes for more options",
+  "Use weights to indicate skill difficulty",
+  "Mark skills complete to track your progress",
+];
+
 export default function AIGenerateModal({
   isOpen,
   onClose,
@@ -16,6 +26,8 @@ export default function AIGenerateModal({
   isGenerating,
 }: AIGenerateModalProps) {
   const [topic, setTopic] = useState('');
+  const [currentTipIndex, setCurrentTipIndex] = useState(0);
+  const [tipKey, setTipKey] = useState(0);
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -39,6 +51,21 @@ export default function AIGenerateModal({
       setTopic('');
     }
   }, [isOpen]);
+
+  // Cycle through tips while generating
+  useEffect(() => {
+    if (isGenerating) {
+      // Start with a random tip
+      setCurrentTipIndex(Math.floor(Math.random() * USAGE_TIPS.length));
+
+      const interval = setInterval(() => {
+        setCurrentTipIndex((prev) => (prev + 1) % USAGE_TIPS.length);
+        setTipKey((prev) => prev + 1); // Force re-animation
+      }, 3000); // Change tip every 3 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [isGenerating]);
 
   if (!isOpen) return null;
 
@@ -97,8 +124,8 @@ export default function AIGenerateModal({
           </div>
 
           {isGenerating && (
-            <div className="mb-4 p-3 bg-blue-900 bg-opacity-30 border border-blue-700 rounded">
-              <div className="flex items-center">
+            <div className="mb-4 p-4 bg-blue-900 bg-opacity-30 border border-blue-700 rounded">
+              <div className="flex items-center mb-3">
                 <svg
                   className="animate-spin h-5 w-5 text-blue-400 mr-3"
                   xmlns="http://www.w3.org/2000/svg"
@@ -119,7 +146,15 @@ export default function AIGenerateModal({
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   ></path>
                 </svg>
-                <span className="text-blue-300 text-sm">Generating skill tree...</span>
+                <span className="text-blue-300 text-sm font-medium">Generating skill tree...</span>
+              </div>
+              <div className="overflow-hidden h-6">
+                <div
+                  key={tipKey}
+                  className="text-gray-300 text-xs italic animate-slideUp"
+                >
+                  💡 {USAGE_TIPS[currentTipIndex]}
+                </div>
               </div>
             </div>
           )}
