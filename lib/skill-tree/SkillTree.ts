@@ -96,6 +96,12 @@ export class SkillTree {
       }
     });
 
+    // Double-click to collapse/expand
+    this.cy.on('dbltap', 'node', async (evt) => {
+      const node = evt.target as NodeSingular;
+      await this.toggleNodeCollapse(node);
+    });
+
     // Right-click on node
     this.cy.on('cxttap', 'node', (evt) => {
       evt.preventDefault();
@@ -636,6 +642,52 @@ export class SkillTree {
       node.data('_selected', false);
       node.data('_childHighlight', false);
     });
+  }
+
+  // Collapse/expand node and its children
+  async toggleNodeCollapse(node: NodeSingular): Promise<void> {
+    if (!this.cy) return;
+
+    const { NodeRenderer } = await import('./NodeRenderer');
+    const nodeId = node.id();
+    const isCollapsed = node.data('_collapsed') || false;
+
+    if (isCollapsed) {
+      // Expand: show all descendants
+      const descendants = NodeRenderer.getAllDescendants(this.cy, nodeId);
+
+      descendants.forEach((descId) => {
+        const descNode = this.cy!.getElementById(descId);
+        if (descNode.length) {
+          descNode.show();
+          // Also show edges connected to this node
+          descNode.connectedEdges().show();
+        }
+      });
+
+      node.data('_collapsed', false);
+      node.data('_collapsedCount', 0);
+    } else {
+      // Collapse: hide all descendants
+      const descendants = NodeRenderer.getAllDescendants(this.cy, nodeId);
+
+      descendants.forEach((descId) => {
+        const descNode = this.cy!.getElementById(descId);
+        if (descNode.length) {
+          descNode.hide();
+          // Also hide edges connected to this node
+          descNode.connectedEdges().hide();
+        }
+      });
+
+      node.data('_collapsed', true);
+      node.data('_collapsedCount', descendants.length);
+    }
+
+    // Trigger change callback
+    if (this.onTreeChanged) {
+      this.onTreeChanged();
+    }
   }
 
   // Persistence
