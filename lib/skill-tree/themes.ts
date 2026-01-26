@@ -130,6 +130,18 @@ export const ThemeManager = {
         },
       },
       {
+        // Root node - special styling
+        selector: 'node[[parentId = null]]',
+        style: {
+          'shape': 'roundrectangle',
+          'background-color': '#8b5cf6', // Purple color to stand out
+          'border-color': '#a78bfa',
+          'border-width': 4,
+          'width': 100,
+          'height': 100,
+        },
+      },
+      {
         selector: 'node:selected',
         style: {
           'border-width': 5,

@@ -263,8 +263,42 @@ export class SkillTree {
     // Apply layout
     await this.applyLayout(false);
 
-    // Fit viewport after layout completes
-    this.cy.fit(undefined, 50);
+    // Position viewport with root node in top 80% and reasonable zoom
+    const rootNode = this.cy.nodes().filter((node) => {
+      const parentId = node.data('parentId');
+      return parentId === null || parentId === undefined;
+    });
+
+    if (rootNode.length > 0) {
+      // Get all nodes for zoom calculation
+      const allNodes = this.cy.nodes();
+
+      // Fit to show all nodes, but with a max zoom to prevent things being too small
+      this.cy.fit(allNodes, 80);
+
+      // Limit zoom out to prevent nodes from being too tiny
+      const currentZoom = this.cy.zoom();
+      const maxZoomOut = 0.6; // Don't zoom out more than this
+      if (currentZoom < maxZoomOut) {
+        this.cy.zoom(maxZoomOut);
+      }
+
+      // Center on root node, but offset upward to place it in top 80%
+      const rootPos = rootNode.position();
+      const container = this.cy.container();
+      if (container) {
+        const containerHeight = container.clientHeight;
+        // Offset to place root at 20% from top instead of 50% (center)
+        const offsetY = containerHeight * 0.3; // Move viewport down by 30% of height
+        this.cy.pan({
+          x: this.cy.pan().x,
+          y: this.cy.pan().y + offsetY
+        });
+      }
+    } else {
+      // Fallback if no root found
+      this.cy.fit(undefined, 50);
+    }
 
     // Trigger change callback
     if (this.onTreeChanged) {
