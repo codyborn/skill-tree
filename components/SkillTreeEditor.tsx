@@ -51,6 +51,10 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, shareId, onSave }
           onNodeRightClick: (node, event) => {
             setContextMenu({ node, x: event.clientX, y: event.clientY });
           },
+          onCanvasClick: () => {
+            // Close detail panel when clicking on canvas background
+            setIsPanelOpen(false);
+          },
           onCanvasRightClick: (event) => {
             setIsPanelOpen(false);
             setContextMenu(null);
@@ -111,27 +115,6 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, shareId, onSave }
     window.addEventListener('themeChanged', handleThemeChange);
     return () => window.removeEventListener('themeChanged', handleThemeChange);
   }, [skillTree]);
-
-  // Close detail panel on background click
-  useEffect(() => {
-    const handleBackgroundClick = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      // Check if click is on the canvas background (not on a node or UI element)
-      if (isPanelOpen && target.tagName === 'CANVAS') {
-        setIsPanelOpen(false);
-      }
-    };
-
-    if (containerRef.current) {
-      containerRef.current.addEventListener('click', handleBackgroundClick);
-    }
-
-    return () => {
-      if (containerRef.current) {
-        containerRef.current.removeEventListener('click', handleBackgroundClick);
-      }
-    };
-  }, [isPanelOpen]);
 
   // ESC key handler
   useEffect(() => {

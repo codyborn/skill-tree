@@ -16,6 +16,7 @@ export interface SkillTreeOptions {
   container: HTMLElement;
   onNodeClick?: (node: NodeSingular) => void;
   onNodeRightClick?: (node: NodeSingular, event: MouseEvent) => void;
+  onCanvasClick?: () => void;
   onCanvasRightClick?: (event: MouseEvent) => void;
   onTreeChanged?: () => void;
   onThemeChange?: () => void;
@@ -30,6 +31,7 @@ export class SkillTree {
   // Callbacks
   private onNodeClick?: (node: NodeSingular) => void;
   private onNodeRightClick?: (node: NodeSingular, event: MouseEvent) => void;
+  private onCanvasClick?: () => void;
   private onCanvasRightClick?: (event: MouseEvent) => void;
   private onTreeChanged?: () => void;
   private onThemeChange?: () => void;
@@ -38,6 +40,7 @@ export class SkillTree {
     this.container = options.container;
     this.onNodeClick = options.onNodeClick;
     this.onNodeRightClick = options.onNodeRightClick;
+    this.onCanvasClick = options.onCanvasClick;
     this.onCanvasRightClick = options.onCanvasRightClick;
     this.onTreeChanged = options.onTreeChanged;
     this.onThemeChange = options.onThemeChange;
@@ -127,6 +130,9 @@ export class SkillTree {
       if (evt.target === this.cy) {
         this.selectedNode = null;
         this.clearAllHighlights();
+        if (this.onCanvasClick) {
+          this.onCanvasClick();
+        }
       }
     });
 
