@@ -50,7 +50,7 @@ export default function TreePage({ params }: { params: { id: string } }) {
                 locked: false,
                 parentId: null,
                 prerequisites: [],
-                iconData: null,
+                iconData: { type: 'emoji', icon: '', color: '#8b5cf6' },
                 weight: 5,
                 subtreeCompletion: 0,
                 subtreeProgress: { completed: 0, total: 1 },

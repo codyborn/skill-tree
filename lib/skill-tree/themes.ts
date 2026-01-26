@@ -140,8 +140,14 @@ export const ThemeManager = {
         selector: 'node[[parentId = null]]',
         style: {
           'shape': 'roundrectangle',
-          'background-color': '#8b5cf6', // Purple color to stand out
-          'border-color': '#a78bfa',
+          'background-color': (node: any) => {
+            const iconData = node.data('iconData') || { color: '#8b5cf6' };
+            return iconData.color;
+          },
+          'border-color': (node: any) => {
+            const iconData = node.data('iconData') || { color: '#8b5cf6' };
+            return this.adjustColorBrightness(iconData.color, 1.2);
+          },
           'border-width': 4,
           'width': 100,
           'height': 100,

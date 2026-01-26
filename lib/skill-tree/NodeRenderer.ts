@@ -24,7 +24,7 @@ export const NodeRenderer = {
       locked: parentId ? true : false, // Root nodes unlocked, children locked
       parent: parentId,
       prerequisites: parentId ? [parentId] : [],
-      iconData: iconData || null,
+      iconData: iconData || (parentId === null ? { type: 'emoji', icon: '', color: '#8b5cf6' } : null),
       weight: parentId ? 1 : 5, // Root nodes get weight 5, children get 1
       subtreeCompletion: 0,
       subtreeProgress: { completed: 0, total: 0 },
