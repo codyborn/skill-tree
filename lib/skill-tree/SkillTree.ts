@@ -263,7 +263,7 @@ export class SkillTree {
     // Apply layout
     await this.applyLayout(false);
 
-    // Position viewport with root node in top 80% and reasonable zoom
+    // Position viewport with root node in top portion and centered horizontally
     const rootNode = this.cy.nodes().filter((node) => {
       const parentId = node.data('parentId');
       return parentId === null || parentId === undefined;
@@ -283,17 +283,22 @@ export class SkillTree {
         this.cy.zoom(maxZoomOut);
       }
 
-      // Center on root node, but offset upward to place it in top 80%
+      // Center on root node horizontally, but position it in top 20% vertically
       const rootPos = rootNode.position();
       const container = this.cy.container();
       if (container) {
+        const containerWidth = container.clientWidth;
         const containerHeight = container.clientHeight;
-        // Offset to place root at 20% from top instead of 50% (center)
-        const offsetY = containerHeight * 0.3; // Move viewport down by 30% of height
-        this.cy.pan({
-          x: this.cy.pan().x,
-          y: this.cy.pan().y + offsetY
-        });
+        const zoom = this.cy.zoom();
+
+        // Calculate pan to center root node horizontally
+        const panX = containerWidth / 2 - rootPos.x * zoom;
+
+        // Calculate pan to place root at 20% from top (in top 80% of page)
+        const targetYPosition = containerHeight * 0.2; // 20% from top
+        const panY = targetYPosition - rootPos.y * zoom;
+
+        this.cy.pan({ x: panX, y: panY });
       }
     } else {
       // Fallback if no root found
