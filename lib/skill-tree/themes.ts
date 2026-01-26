@@ -65,6 +65,12 @@ export const ThemeManager = {
           'border-width': 6,
           'border-style': 'solid',
           label: (node: any) => {
+            // Root nodes never show text
+            const parentId = node.data('parentId');
+            if (parentId === null || parentId === undefined) {
+              return '';
+            }
+
             const iconData = node.data('iconData');
             const collapsed = node.data('_collapsed');
             const collapsedCount = node.data('_collapsedCount') || 0;

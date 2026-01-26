@@ -23,6 +23,12 @@ export default function NodeTooltip({ node, position }: NodeTooltipProps) {
 
   if (!node || !position || !isVisible) return null;
 
+  // Don't show tooltip for root nodes
+  const parentId = node.data('parentId');
+  if (parentId === null || parentId === undefined) {
+    return null;
+  }
+
   const label = node.data('label') || '';
   const description = node.data('description') || '';
   const iconData = node.data('iconData');
