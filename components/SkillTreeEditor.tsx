@@ -49,6 +49,7 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, shareId, onSave }
             }
           },
           onNodeRightClick: (node, event) => {
+            setIsPanelOpen(false); // Close detail panel when opening context menu
             setContextMenu({ node, x: event.clientX, y: event.clientY });
           },
           onCanvasClick: () => {
