@@ -58,11 +58,15 @@ export const ThemeManager = {
             return subtreeCompletion === 0 ? 0.5 : 1;
           },
           'border-color': (node: any) => {
-            // Border color - theme aware
+            // Border color - darker version of node color
+            const iconData = node.data('iconData');
+            if (iconData?.color) {
+              return this.adjustColorBrightness(iconData.color, 0.6);
+            }
+            // Fallback - theme aware
             if (isDark) {
               return '#3d3d4d';
             }
-            // Light mode - darker border for contrast
             return '#64748b';
           },
           'border-width': 6,
@@ -149,7 +153,7 @@ export const ThemeManager = {
           },
           'border-color': (node: any) => {
             const iconData = node.data('iconData') || { color: '#8b5cf6' };
-            return this.adjustColorBrightness(iconData.color, 1.2);
+            return this.adjustColorBrightness(iconData.color, 0.6);
           },
           'border-width': 4,
           'width': 100,

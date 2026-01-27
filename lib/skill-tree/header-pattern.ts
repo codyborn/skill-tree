@@ -27,10 +27,10 @@ export function generateHeaderPattern(emoji: string, baseColor: string): string 
       <defs>
         <!-- Two-tone emoji pattern -->
         <pattern id="emoji-pattern" x="0" y="0" width="${spacing}" height="${spacing}" patternUnits="userSpaceOnUse">
-          <!-- First emoji at full opacity -->
-          <text x="0" y="${fontSize}" font-size="${fontSize}" opacity="0.15" fill="rgb(${r},${g},${b})">${emoji}</text>
+          <!-- First emoji at higher opacity -->
+          <text x="0" y="${fontSize}" font-size="${fontSize}" opacity="0.35" fill="rgb(${r},${g},${b})">${emoji}</text>
           <!-- Second emoji at lower opacity (creates two-tone effect) -->
-          <text x="${spacing / 2}" y="${fontSize + spacing / 2}" font-size="${fontSize}" opacity="0.08" fill="rgb(${r},${g},${b})">${emoji}</text>
+          <text x="${spacing / 2}" y="${fontSize + spacing / 2}" font-size="${fontSize}" opacity="0.20" fill="rgb(${r},${g},${b})">${emoji}</text>
         </pattern>
 
         <!-- Gradient overlay for depth effect -->
@@ -77,8 +77,8 @@ export function generateGrayHeaderPattern(emoji: string): string {
     <svg width="200" height="80" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <pattern id="emoji-pattern-gray" x="0" y="0" width="${spacing}" height="${spacing}" patternUnits="userSpaceOnUse">
-          <text x="0" y="${fontSize}" font-size="${fontSize}" opacity="0.08" fill="${grayColor}">${emoji}</text>
-          <text x="${spacing / 2}" y="${fontSize + spacing / 2}" font-size="${fontSize}" opacity="0.04" fill="${grayColor}">${emoji}</text>
+          <text x="0" y="${fontSize}" font-size="${fontSize}" opacity="0.20" fill="${grayColor}">${emoji}</text>
+          <text x="${spacing / 2}" y="${fontSize + spacing / 2}" font-size="${fontSize}" opacity="0.12" fill="${grayColor}">${emoji}</text>
         </pattern>
       </defs>
 
