@@ -31,6 +31,7 @@ export interface NodeData {
     total: number;
   };
   metadata: Record<string, any>; // Custom metadata
+  isHeader?: boolean; // Whether this is a header node (logical grouping)
 }
 
 // Cytoscape node data (stored in Cytoscape instance)
@@ -50,6 +51,7 @@ export interface CytoscapeNodeData {
     total: number;
   };
   metadata: Record<string, any>;
+  isHeader?: boolean; // Whether this is a header node (logical grouping)
 }
 
 // Cytoscape node element

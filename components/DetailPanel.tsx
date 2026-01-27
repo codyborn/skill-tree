@@ -36,6 +36,7 @@ export default function DetailPanel({ node, isOpen, onClose, onUpdate }: DetailP
   const [icon, setIcon] = useState('');
   const [completedAt, setCompletedAt] = useState<string | null>(null);
   const [isRootNode, setIsRootNode] = useState(false);
+  const [isHeader, setIsHeader] = useState(false);
 
   useEffect(() => {
     if (node) {
@@ -47,6 +48,9 @@ export default function DetailPanel({ node, isOpen, onClose, onUpdate }: DetailP
       // Check if this is the root node (no parent)
       const parentId = node.data('parentId');
       setIsRootNode(parentId === null || parentId === undefined);
+
+      // Get header status
+      setIsHeader(node.data('isHeader') || false);
 
       const iconData = node.data('iconData');
       if (iconData) {
@@ -146,6 +150,29 @@ export default function DetailPanel({ node, isOpen, onClose, onUpdate }: DetailP
         icon: newIcon,
       },
     });
+  };
+
+  const handleHeaderToggle = () => {
+    const newIsHeader = !isHeader;
+    setIsHeader(newIsHeader);
+
+    // When toggling to header, clear completion status
+    if (newIsHeader) {
+      setCompleted(false);
+      setCompletedAt(null);
+      onUpdate(nodeId, {
+        isHeader: newIsHeader,
+        completed: false,
+        metadata: {
+          ...(node.data('metadata') || {}),
+          completedAt: null,
+        },
+      });
+    } else {
+      onUpdate(nodeId, {
+        isHeader: newIsHeader,
+      });
+    }
   };
 
   return (
@@ -273,8 +300,46 @@ export default function DetailPanel({ node, isOpen, onClose, onUpdate }: DetailP
             />
           </div>
 
-          {/* Completion Button - Hide for root nodes */}
+          {/* Header Node Toggle - Hide for root nodes */}
           {!isRootNode && (
+            <div className="bg-gray-900 border border-gray-700 rounded-lg p-4">
+              <label className="flex items-center cursor-pointer group">
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    checked={isHeader}
+                    onChange={handleHeaderToggle}
+                    className="sr-only"
+                  />
+                  <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${
+                    isHeader
+                      ? 'bg-purple-600 border-purple-600'
+                      : 'bg-transparent border-gray-600 group-hover:border-gray-500'
+                  }`}>
+                    {isHeader && (
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </div>
+                </div>
+                <div className="ml-3 flex-1">
+                  <span className="text-sm font-medium text-gray-200">Header Node</span>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    Logical grouping that can&apos;t be completed directly
+                  </p>
+                </div>
+              </label>
+              {isHeader && (
+                <div className="mt-2 text-xs text-purple-400 bg-purple-900/30 rounded p-2">
+                  ℹ️ Header nodes are colored when any children are completed
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Completion Button - Hide for root nodes and header nodes */}
+          {!isRootNode && !isHeader && (
             <div>
               <button
                 onClick={handleCompletedToggle}

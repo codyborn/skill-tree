@@ -58,6 +58,7 @@ export const NodeRenderer = {
         subtreeCompletion: nodeData.subtreeCompletion || 0,
         subtreeProgress: nodeData.subtreeProgress || { completed: 0, total: 0 },
         metadata: nodeData.metadata || {},
+        isHeader: nodeData.isHeader || false,
       },
     };
   },
@@ -257,21 +258,27 @@ export const NodeRenderer = {
     let completedWeight = 0;
     let totalWeight = 0;
 
-    // Add this node's weight
-    const nodeWeight = node.data('weight') || 1;
-    totalWeight += nodeWeight;
-    if (node.data('completed')) {
-      completedWeight += nodeWeight;
+    // Add this node's weight (skip if it's a header node)
+    const isHeader = node.data('isHeader') || false;
+    if (!isHeader) {
+      const nodeWeight = node.data('weight') || 1;
+      totalWeight += nodeWeight;
+      if (node.data('completed')) {
+        completedWeight += nodeWeight;
+      }
     }
 
-    // Add descendants' weights
+    // Add descendants' weights (skip header nodes)
     descendants.forEach((descId) => {
       const descNode = cy.getElementById(descId);
       if (descNode.length) {
-        const descWeight = descNode.data('weight') || 1;
-        totalWeight += descWeight;
-        if (descNode.data('completed')) {
-          completedWeight += descWeight;
+        const descIsHeader = descNode.data('isHeader') || false;
+        if (!descIsHeader) {
+          const descWeight = descNode.data('weight') || 1;
+          totalWeight += descWeight;
+          if (descNode.data('completed')) {
+            completedWeight += descWeight;
+          }
         }
       }
     });

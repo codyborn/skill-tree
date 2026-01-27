@@ -3,6 +3,8 @@
  * Converted to TypeScript
  */
 
+import { generateHeaderPattern, generateGrayHeaderPattern } from './header-pattern';
+
 export type Theme = 'light' | 'dark';
 
 export const ThemeManager = {
@@ -136,6 +138,13 @@ export const ThemeManager = {
         },
       },
       {
+        // Regular nodes (not headers) - ensure they stay circular
+        selector: 'node[!isHeader]',
+        style: {
+          'shape': 'ellipse',
+        },
+      },
+      {
         // Root node - special styling
         selector: 'node[[parentId = null]]',
         style: {
@@ -151,6 +160,65 @@ export const ThemeManager = {
           'border-width': 4,
           'width': 100,
           'height': 100,
+        },
+      },
+      {
+        // Header nodes - logical groupings with visual hierarchy
+        selector: 'node[isHeader = true]',
+        style: {
+          'shape': 'roundrectangle',
+          'width': 200,
+          'height': 80,
+          'border-width': 4,
+          'font-weight': 'bold',
+          'font-size': '14px',
+          'text-wrap': 'wrap',
+          'text-max-width': '180px',
+          label: (node: any) => {
+            // Header nodes show icon + title together
+            const iconData = node.data('iconData');
+            const label = node.data('label') || '';
+            const emoji = iconData?.icon || '';
+            return emoji ? `${emoji} ${label}` : label;
+          },
+          'background-image': (node: any) => {
+            const iconData = node.data('iconData');
+            if (!iconData?.icon || iconData.type !== 'emoji') {
+              return 'none';
+            }
+
+            // Check if any direct children are completed
+            const cy = node.cy();
+            const children = cy.nodes().filter((n: any) => n.data('parentId') === node.id());
+            const hasCompletedChildren = children.some((child: any) => child.data('completed'));
+
+            // Use colored pattern if children completed, gray pattern otherwise
+            if (hasCompletedChildren) {
+              return generateHeaderPattern(iconData.icon, iconData.color || '#6366f1');
+            } else {
+              return generateGrayHeaderPattern(iconData.icon);
+            }
+          },
+          'background-opacity': (node: any) => {
+            // Check if any direct children are completed
+            const cy = node.cy();
+            const children = cy.nodes().filter((n: any) => n.data('parentId') === node.id());
+            const hasCompletedChildren = children.some((child: any) => child.data('completed'));
+            return hasCompletedChildren ? 1 : 0.5;
+          },
+          'background-color': (node: any) => {
+            const iconData = node.data('iconData') || { color: '#6366f1' };
+
+            // Check if any direct children are completed
+            const cy = node.cy();
+            const children = cy.nodes().filter((n: any) => n.data('parentId') === node.id());
+            const hasCompletedChildren = children.some((child: any) => child.data('completed'));
+
+            // Gray out if no children completed
+            return hasCompletedChildren
+              ? iconData.color
+              : this.desaturateColor(iconData.color, 0.6);
+          },
         },
       },
       {
