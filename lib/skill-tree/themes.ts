@@ -164,7 +164,7 @@ export const ThemeManager = {
       },
       {
         // Header nodes - logical groupings with visual hierarchy
-        selector: 'node[isHeader = true]',
+        selector: 'node[isHeader]',
         style: {
           'shape': 'roundrectangle',
           'width': 200,

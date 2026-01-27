@@ -448,10 +448,15 @@ export class SkillTree {
       });
     }
 
-    // If completion, iconData, or weight changed, update subtree completions
-    if ('completed' in updates || 'iconData' in updates || 'weight' in updates) {
+    // If completion, iconData, weight, or isHeader changed, update subtree completions
+    if ('completed' in updates || 'iconData' in updates || 'weight' in updates || 'isHeader' in updates) {
       NodeRenderer.updateChildrenLockState(this.cy, nodeId);
       NodeRenderer.updateAllSubtreeCompletions(this.cy);
+
+      // Force style update when isHeader changes
+      if ('isHeader' in updates) {
+        this.cy.style().update();
+      }
     }
 
     // Trigger change callback

@@ -29,6 +29,7 @@ export const NodeRenderer = {
       subtreeCompletion: 0,
       subtreeProgress: { completed: 0, total: 0 },
       metadata: {},
+      isHeader: false, // Default: regular nodes
     };
   },
 
