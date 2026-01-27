@@ -36,7 +36,8 @@ Return ONLY valid JSON (no markdown, no explanations) in this exact format:
       "locked": true,
       "subtreeCompletion": 0,
       "subtreeProgress": { "completed": 0, "total": 0 },
-      "metadata": {}
+      "metadata": {},
+      "isHeader": false
     }
   ],
   "edges": [
@@ -46,7 +47,9 @@ Return ONLY valid JSON (no markdown, no explanations) in this exact format:
 
 Requirements:
 - Create a TRUE HIERARCHICAL tree structure with branching paths (not flat)
-- Include exactly 1 root node (parent: null, locked: false)
+- Include exactly 1 root node (parent: null, locked: false, isHeader: true)
+- The root node MUST have isHeader: true (it's a logical grouping/category)
+- All other nodes MUST have isHeader: false (they are regular completable skills)
 - Other nodes should have varying depths - create 2-3 levels of hierarchy
 - Each node should have 1-3 children on average
 - The parent field MUST correctly reference another node's id (or null for root)
