@@ -250,6 +250,10 @@ export class SkillTree {
       const cyNode = { ...node };
       // Don't set positions - let layout handle it
       delete cyNode.position;
+      // Ensure isHeader is explicitly set (backward compatibility with old data)
+      if (cyNode.data.isHeader === undefined) {
+        cyNode.data.isHeader = false;
+      }
       return cyNode;
     });
     const cyEdges = treeData.edges;
