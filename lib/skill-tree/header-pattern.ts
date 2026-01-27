@@ -28,9 +28,9 @@ export function generateHeaderPattern(emoji: string, baseColor: string): string 
         <!-- Two-tone emoji pattern -->
         <pattern id="emoji-pattern" x="0" y="0" width="${spacing}" height="${spacing}" patternUnits="userSpaceOnUse">
           <!-- First emoji at higher opacity -->
-          <text x="0" y="${fontSize}" font-size="${fontSize}" opacity="0.35" fill="rgb(${r},${g},${b})" transform="rotate(45, ${fontSize/2}, ${fontSize/2})">${emoji}</text>
+          <text x="0" y="${fontSize}" font-size="${fontSize}" opacity="0.50" fill="rgb(${r},${g},${b})" transform="rotate(45, ${fontSize/2}, ${fontSize/2})">${emoji}</text>
           <!-- Second emoji at lower opacity (creates two-tone effect) -->
-          <text x="${spacing / 2}" y="${fontSize + spacing / 2}" font-size="${fontSize}" opacity="0.20" fill="rgb(${r},${g},${b})" transform="rotate(45, ${spacing/2 + fontSize/2}, ${spacing/2 + fontSize/2})">${emoji}</text>
+          <text x="${spacing / 2}" y="${fontSize + spacing / 2}" font-size="${fontSize}" opacity="0.30" fill="rgb(${r},${g},${b})" transform="rotate(45, ${spacing/2 + fontSize/2}, ${spacing/2 + fontSize/2})">${emoji}</text>
         </pattern>
 
         <!-- Gradient overlay for depth effect -->
@@ -77,8 +77,8 @@ export function generateGrayHeaderPattern(emoji: string): string {
     <svg width="200" height="80" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <pattern id="emoji-pattern-gray" x="0" y="0" width="${spacing}" height="${spacing}" patternUnits="userSpaceOnUse">
-          <text x="0" y="${fontSize}" font-size="${fontSize}" opacity="0.20" fill="${grayColor}" transform="rotate(45, ${fontSize/2}, ${fontSize/2})">${emoji}</text>
-          <text x="${spacing / 2}" y="${fontSize + spacing / 2}" font-size="${fontSize}" opacity="0.12" fill="${grayColor}" transform="rotate(45, ${spacing/2 + fontSize/2}, ${spacing/2 + fontSize/2})">${emoji}</text>
+          <text x="0" y="${fontSize}" font-size="${fontSize}" opacity="0.30" fill="${grayColor}" transform="rotate(45, ${fontSize/2}, ${fontSize/2})">${emoji}</text>
+          <text x="${spacing / 2}" y="${fontSize + spacing / 2}" font-size="${fontSize}" opacity="0.18" fill="${grayColor}" transform="rotate(45, ${spacing/2 + fontSize/2}, ${spacing/2 + fontSize/2})">${emoji}</text>
         </pattern>
       </defs>
 
