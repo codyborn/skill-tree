@@ -217,8 +217,6 @@ export const ThemeManager = {
       {
         selector: 'node:selected',
         style: {
-          'border-width': 5,
-          'border-color': '#3b82f6',
           'overlay-opacity': 0,
         },
       },
@@ -247,8 +245,6 @@ export const ThemeManager = {
       {
         selector: 'node[_selected]',
         style: {
-          'border-width': 5,
-          'border-color': '#3b82f6',
           'overlay-opacity': 0,
         },
       },
