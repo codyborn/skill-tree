@@ -538,6 +538,7 @@ export class SkillTree {
           subtreeCompletion: node.data('subtreeCompletion') || 0,
           subtreeProgress: node.data('subtreeProgress') || { completed: 0, total: 0 },
           metadata: node.data('metadata') || {},
+          isHeader: node.data('isHeader') || false,
         },
       });
     });
