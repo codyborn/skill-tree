@@ -96,10 +96,7 @@ export const ThemeManager = {
             return iconData.type === 'emoji' ? iconData.icon : '';
           },
           color: isDark ? '#ffffff' : '#1a1a2e',
-          'text-opacity': (node: any) => {
-            const subtreeCompletion = Number(node.data('subtreeCompletion')) || 0;
-            return subtreeCompletion === 0 ? 0.5 : 1;
-          },
+          'text-opacity': 1, // Always bright
           'text-valign': 'center',
           'text-halign': 'center',
           'font-size': (node: any) => {
@@ -227,7 +224,7 @@ export const ThemeManager = {
         },
       },
       {
-        selector: 'node[_childHighlight]',
+        selector: 'node[?_childHighlight][_childHighlight = true]',
         style: {
           'border-width': 6,
           'border-color': (node: any) => {
@@ -245,10 +242,10 @@ export const ThemeManager = {
       {
         selector: 'node[?_selected][_selected = true]',
         style: {
-          'border-width': 6,
+          'border-width': 8,
           'border-color': (node: any) => {
             const iconData = node.data('iconData') || { color: '#6366f1' };
-            return this.adjustColorBrightness(iconData.color, 1.3);
+            return this.adjustColorBrightness(iconData.color, 1.4);
           },
           'overlay-opacity': 0,
         },
