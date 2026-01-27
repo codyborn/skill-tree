@@ -44,6 +44,7 @@ export const ThemeManager = {
       {
         selector: 'node',
         style: {
+          'shape': 'ellipse', // Default shape for all nodes (overridden by root and header)
           'background-color': (node: any) => {
             const iconData = node.data('iconData') || { color: '#6366f1' };
             const subtreeCompletion = Number(node.data('subtreeCompletion')) || 0;
@@ -138,13 +139,6 @@ export const ThemeManager = {
         },
       },
       {
-        // Regular nodes (not headers) - ensure they stay circular
-        selector: 'node[!isHeader]',
-        style: {
-          'shape': 'ellipse',
-        },
-      },
-      {
         // Root node - special styling
         selector: 'node[[parentId = null]]',
         style: {
@@ -164,7 +158,8 @@ export const ThemeManager = {
       },
       {
         // Header nodes - logical groupings with visual hierarchy
-        selector: 'node[isHeader]',
+        // Must check explicitly for true to avoid matching undefined/false
+        selector: 'node[?isHeader][isHeader = true]',
         style: {
           'shape': 'roundrectangle',
           'width': 200,
@@ -184,35 +179,32 @@ export const ThemeManager = {
               return 'none';
             }
 
-            // Check if any direct children are completed
-            const cy = node.cy();
-            const children = cy.nodes().filter((n: any) => n.data('parentId') === node.id());
-            const hasCompletedChildren = children.some((child: any) => child.data('completed'));
+            // Check if subtree has any progress (> 0%)
+            const subtreeCompletion = Number(node.data('subtreeCompletion')) || 0;
+            const hasProgress = subtreeCompletion > 0;
 
-            // Use colored pattern if children completed, gray pattern otherwise
-            if (hasCompletedChildren) {
+            // Use colored pattern if progress > 0%, gray pattern otherwise
+            if (hasProgress) {
               return generateHeaderPattern(iconData.icon, iconData.color || '#6366f1');
             } else {
               return generateGrayHeaderPattern(iconData.icon);
             }
           },
           'background-opacity': (node: any) => {
-            // Check if any direct children are completed
-            const cy = node.cy();
-            const children = cy.nodes().filter((n: any) => n.data('parentId') === node.id());
-            const hasCompletedChildren = children.some((child: any) => child.data('completed'));
-            return hasCompletedChildren ? 1 : 0.5;
+            // Check if subtree has any progress (> 0%)
+            const subtreeCompletion = Number(node.data('subtreeCompletion')) || 0;
+            const hasProgress = subtreeCompletion > 0;
+            return hasProgress ? 1 : 0.5;
           },
           'background-color': (node: any) => {
             const iconData = node.data('iconData') || { color: '#6366f1' };
 
-            // Check if any direct children are completed
-            const cy = node.cy();
-            const children = cy.nodes().filter((n: any) => n.data('parentId') === node.id());
-            const hasCompletedChildren = children.some((child: any) => child.data('completed'));
+            // Check if subtree has any progress (> 0%)
+            const subtreeCompletion = Number(node.data('subtreeCompletion')) || 0;
+            const hasProgress = subtreeCompletion > 0;
 
-            // Gray out if no children completed
-            return hasCompletedChildren
+            // Gray out if no progress
+            return hasProgress
               ? iconData.color
               : this.desaturateColor(iconData.color, 0.6);
           },
