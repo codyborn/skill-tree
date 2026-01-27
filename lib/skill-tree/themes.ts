@@ -171,15 +171,12 @@ export const ThemeManager = {
           'height': 80,
           'border-width': 4,
           'font-weight': 'bold',
-          'font-size': '14px',
+          'font-size': '20px',
           'text-wrap': 'wrap',
           'text-max-width': '180px',
           label: (node: any) => {
-            // Header nodes show icon + title together
-            const iconData = node.data('iconData');
-            const label = node.data('label') || '';
-            const emoji = iconData?.icon || '';
-            return emoji ? `${emoji} ${label}` : label;
+            // Header nodes show title only (icon in background pattern)
+            return node.data('label') || '';
           },
           'background-image': (node: any) => {
             const iconData = node.data('iconData');
