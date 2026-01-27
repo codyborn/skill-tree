@@ -324,7 +324,10 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, shareId, onSave }
       <DetailPanel
         node={selectedNode}
         isOpen={isPanelOpen}
-        onClose={() => setIsPanelOpen(false)}
+        onClose={() => {
+          setIsPanelOpen(false);
+          skillTree?.clearAllHighlights();
+        }}
         onUpdate={handleUpdateNode}
       />
 

@@ -245,6 +245,11 @@ export const ThemeManager = {
       {
         selector: 'node[_selected]',
         style: {
+          'border-width': 6,
+          'border-color': (node: any) => {
+            const iconData = node.data('iconData') || { color: '#6366f1' };
+            return this.adjustColorBrightness(iconData.color, 1.3);
+          },
           'overlay-opacity': 0,
         },
       },
