@@ -243,7 +243,7 @@ export const ThemeManager = {
         },
       },
       {
-        selector: 'node[_selected]',
+        selector: 'node[?_selected][_selected = true]',
         style: {
           'border-width': 6,
           'border-color': (node: any) => {
