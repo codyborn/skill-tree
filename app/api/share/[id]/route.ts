@@ -4,12 +4,24 @@ import prisma from '@/lib/prisma';
 // GET /api/share/[id] - Get share data by shareId
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
+
     const share = await prisma.share.findUnique({
-      where: { shareId: params.id },
-      include: { tree: true },
+      where: { shareId: id },
+      include: {
+        tree: true,
+        creator: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+          },
+        },
+      },
     });
 
     if (!share || (share.expiresAt && share.expiresAt < new Date())) {
@@ -25,6 +37,7 @@ export async function GET(
     return NextResponse.json({
       tree: share.tree,
       views: share.views + 1, // Return incremented count
+      creator: share.creator,
     });
   } catch (error) {
     console.error('Error fetching share:', error);

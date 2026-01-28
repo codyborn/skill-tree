@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { redirect } from 'next/navigation';
 import SkillTreeEditor from '@/components/SkillTreeEditor';
 import Toast from '@/components/Toast';
+import UserMenu from '@/components/UserMenu';
 import type { TreeData } from '@/types/skill-tree';
 
 export default function TreePage({ params }: { params: { id: string } }) {
@@ -13,22 +14,8 @@ export default function TreePage({ params }: { params: { id: string } }) {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [currentTreeId, setCurrentTreeId] = useState(params.id);
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const saveTimeoutRef = useRef<NodeJS.Timeout>();
   const isFirstRender = useRef(true);
-
-  // Load theme on mount
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('skill_tree_theme');
-    if (savedTheme === 'dark' || savedTheme === 'light') {
-      setTheme(savedTheme);
-      document.documentElement.setAttribute('data-theme', savedTheme);
-    } else {
-      // Default to dark mode
-      setTheme('dark');
-      document.documentElement.setAttribute('data-theme', 'dark');
-    }
-  }, []);
 
   // Fetch tree data on mount
   useEffect(() => {
@@ -134,8 +121,8 @@ export default function TreePage({ params }: { params: { id: string } }) {
     }, 1000);
   };
 
-  // Share button handler
-  const handleShare = async () => {
+  // Share link handler (for UserMenu)
+  const handleCopyShareLink = async () => {
     // Don't allow sharing unsaved trees
     if (currentTreeId === 'new') {
       setToast({ message: 'Please make a change to save the tree before sharing', type: 'error' });
@@ -163,15 +150,6 @@ export default function TreePage({ params }: { params: { id: string } }) {
     }
   };
 
-  // Theme toggle handler
-  const handleToggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('skill_tree_theme', newTheme);
-    window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: newTheme } }));
-  };
-
   if (status === 'loading') {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-900">
@@ -191,22 +169,13 @@ export default function TreePage({ params }: { params: { id: string } }) {
           <h1 className="text-xl font-bold text-white">Skill Tree</h1>
           <div className="flex items-center gap-4">
             {isSaving && <span className="text-gray-400 text-sm">Saving...</span>}
-            <button
-              onClick={handleToggleTheme}
-              className="p-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition"
-              aria-label="Toggle theme"
-              title="Toggle theme"
-            >
-              {theme === 'light' ? '🌙' : '☀️'}
-            </button>
-            <button
-              onClick={handleShare}
-              className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={currentTreeId === 'new'}
-              title={currentTreeId === 'new' ? 'Save the tree before sharing' : 'Share this tree'}
-            >
-              Share
-            </button>
+            {session && (
+              <UserMenu
+                session={session}
+                onCopyShareLink={handleCopyShareLink}
+                showShareLink={currentTreeId !== 'new'}
+              />
+            )}
           </div>
         </div>
       </header>

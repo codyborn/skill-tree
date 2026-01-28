@@ -53,6 +53,7 @@ export async function POST(req: NextRequest) {
         treeId,
         shareId,
         expiresAt,
+        createdBy: session.user.id,
       },
     });
 

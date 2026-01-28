@@ -11,16 +11,20 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
+  id            String         @id @default(cuid())
+  email         String         @unique
   name          String?
   image         String?
   emailVerified DateTime?
   accounts      Account[]
   sessions      Session[]
   trees         Tree[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdShares Share[]        @relation("ShareCreator")
+  followers     Follow[]       @relation("Following")
+  following     Follow[]       @relation("Follower")
+  notifications Notification[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 }
 
 model Account {
@@ -69,12 +73,15 @@ model Share {
   id        String    @id @default(cuid())
   treeId    String
   shareId   String    @unique  // Public-facing ID
+  createdBy String
   expiresAt DateTime?
   views     Int       @default(0)
   tree      Tree      @relation(fields: [treeId], references: [id], onDelete: Cascade)
+  creator   User      @relation("ShareCreator", fields: [createdBy], references: [id], onDelete: Cascade)
   createdAt DateTime  @default(now())
 
   @@index([shareId])
+  @@index([createdBy])
 }
 
 model VerificationToken {
@@ -83,4 +90,39 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  follower    User     @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+enum NotificationType {
+  NEW_FOLLOWER
+  FOLLOW_BACK
+  TREE_SHARED
+  SYSTEM
+}
+
+model Notification {
+  id         String           @id @default(cuid())
+  userId     String
+  actorId    String?
+  type       NotificationType
+  entityId   String?
+  entityType String?
+  read       Boolean          @default(false)
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime         @default(now())
+
+  @@index([userId, read])
+  @@index([userId, createdAt])
 }

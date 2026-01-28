@@ -297,6 +297,81 @@ export interface AIGenerateDialogProps {
   parentNode?: NodeSingular;
 }
 
+// Follow/Friend types
+export interface Follow {
+  id: string;
+  followerId: string;
+  followingId: string;
+  createdAt: Date;
+}
+
+export interface FollowStatus {
+  isFollowing: boolean;
+  isFollowedBy: boolean;
+  isMutual: boolean;
+}
+
+export interface UserInfo {
+  id: string;
+  name: string | null;
+  email: string;
+  image: string | null;
+}
+
+export interface FollowUser extends UserInfo {
+  followingSince: Date;
+}
+
+// Notification types
+export enum NotificationType {
+  NEW_FOLLOWER = 'NEW_FOLLOWER',
+  FOLLOW_BACK = 'FOLLOW_BACK',
+  TREE_SHARED = 'TREE_SHARED',
+  SYSTEM = 'SYSTEM',
+}
+
+export interface Notification {
+  id: string;
+  userId: string;
+  actorId: string | null;
+  type: NotificationType;
+  entityId: string | null;
+  entityType: string | null;
+  read: boolean;
+  createdAt: Date;
+}
+
+export interface NotificationWithActor extends Notification {
+  actor?: UserInfo;
+}
+
+// Share with creator
+export interface ShareResponseWithCreator extends ShareResponse {
+  creator: UserInfo;
+}
+
+// API Request/Response types
+export interface FollowRequest {
+  targetUserId: string;
+}
+
+export interface FollowListResponse {
+  users: FollowUser[];
+  hasMore: boolean;
+  cursor?: string;
+}
+
+export interface NotificationListResponse {
+  notifications: NotificationWithActor[];
+  unreadCount: number;
+  hasMore: boolean;
+  cursor?: string;
+}
+
+export interface MarkNotificationReadRequest {
+  read: boolean;
+}
+
 // Utility types
 export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
