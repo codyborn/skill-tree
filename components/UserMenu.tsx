@@ -211,15 +211,15 @@ export default function UserMenu({ session, onCopyShareLink, showShareLink }: Us
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 max-h-[80vh] flex flex-col">
+        <div className="absolute right-0 mt-2 w-80 bg-gray-900 rounded-lg shadow-lg border border-gray-700 z-50 max-h-[80vh] flex flex-col">
           {/* Tabs */}
-          <div className="flex border-b border-gray-200 dark:border-gray-700">
+          <div className="flex border-b border-gray-700">
             <button
               onClick={() => setActiveTab('friends')}
               className={`flex-1 px-4 py-3 font-medium transition-colors ${
                 activeTab === 'friends'
-                  ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                  ? 'text-blue-400 border-b-2 border-blue-400'
+                  : 'text-gray-400 hover:text-white'
               }`}
             >
               Friends
@@ -228,8 +228,8 @@ export default function UserMenu({ session, onCopyShareLink, showShareLink }: Us
               onClick={() => setActiveTab('notifications')}
               className={`flex-1 px-4 py-3 font-medium transition-colors relative ${
                 activeTab === 'notifications'
-                  ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                  ? 'text-blue-400 border-b-2 border-blue-400'
+                  : 'text-gray-400 hover:text-white'
               }`}
             >
               Notifications
@@ -246,14 +246,14 @@ export default function UserMenu({ session, onCopyShareLink, showShareLink }: Us
             {activeTab === 'friends' && (
               <div className="p-4 space-y-3">
                 {friends.length === 0 ? (
-                  <p className="text-gray-500 dark:text-gray-400 text-center py-8">
+                  <p className="text-gray-400 text-center py-8">
                     No friends yet. Follow someone to get started!
                   </p>
                 ) : (
                   friends.map(friend => (
                     <div
                       key={friend.id}
-                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800 transition-colors"
                     >
                       {friend.image ? (
                         <img
@@ -262,15 +262,15 @@ export default function UserMenu({ session, onCopyShareLink, showShareLink }: Us
                           className="w-10 h-10 rounded-full"
                         />
                       ) : (
-                        <div className="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-400 font-semibold">
+                        <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 font-semibold">
                           {(friend.name || friend.email)?.[0]?.toUpperCase()}
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm truncate">
+                        <p className="font-medium text-sm truncate text-white">
                           {friend.name || friend.email}
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                        <p className="text-xs text-gray-400">
                           Following since {getTimeAgo(friend.followingSince)}
                         </p>
                       </div>
@@ -281,17 +281,17 @@ export default function UserMenu({ session, onCopyShareLink, showShareLink }: Us
             )}
 
             {activeTab === 'notifications' && (
-              <div className="divide-y divide-gray-200 dark:divide-gray-700">
+              <div className="divide-y divide-gray-700">
                 {notifications.length === 0 ? (
-                  <p className="text-gray-500 dark:text-gray-400 text-center py-8 px-4">
+                  <p className="text-gray-400 text-center py-8 px-4">
                     No notifications yet
                   </p>
                 ) : (
                   notifications.map(notification => (
                     <div
                       key={notification.id}
-                      className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
-                        !notification.read ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+                      className={`p-4 hover:bg-gray-800 transition-colors ${
+                        !notification.read ? 'bg-blue-900/20' : ''
                       }`}
                     >
                       <div className="flex items-start gap-3">
@@ -302,19 +302,19 @@ export default function UserMenu({ session, onCopyShareLink, showShareLink }: Us
                             className="w-10 h-10 rounded-full flex-shrink-0"
                           />
                         ) : (
-                          <div className="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-400 font-semibold flex-shrink-0">
+                          <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 font-semibold flex-shrink-0">
                             {notification.actor?.name?.[0]?.toUpperCase() || '?'}
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm">{getNotificationText(notification)}</p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          <p className="text-sm text-white">{getNotificationText(notification)}</p>
+                          <p className="text-xs text-gray-400 mt-1">
                             {getTimeAgo(notification.createdAt)}
                           </p>
                           {notification.type === 'NEW_FOLLOWER' && notification.actorId && (
                             <button
                               onClick={() => handleFollowBack(notification.actorId!)}
-                              className="mt-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                              className="mt-2 text-sm text-blue-400 hover:underline"
                             >
                               Follow Back
                             </button>
@@ -322,7 +322,7 @@ export default function UserMenu({ session, onCopyShareLink, showShareLink }: Us
                         </div>
                         <button
                           onClick={() => dismissNotification(notification.id)}
-                          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 flex-shrink-0"
+                          className="text-gray-400 hover:text-gray-300 flex-shrink-0"
                           aria-label="Dismiss"
                         >
                           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -342,14 +342,14 @@ export default function UserMenu({ session, onCopyShareLink, showShareLink }: Us
           </div>
 
           {/* Footer */}
-          <div className="border-t border-gray-200 dark:border-gray-700 p-2 space-y-1">
+          <div className="border-t border-gray-700 p-2 space-y-1">
             {showShareLink && onCopyShareLink && (
               <button
                 onClick={() => {
                   onCopyShareLink();
                   setIsOpen(false);
                 }}
-                className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors flex items-center gap-2"
+                className="w-full px-4 py-2 text-left text-sm text-white hover:bg-gray-800 rounded transition-colors flex items-center gap-2"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
@@ -367,7 +367,7 @@ export default function UserMenu({ session, onCopyShareLink, showShareLink }: Us
                 toggleTheme();
                 setIsOpen(false);
               }}
-              className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors flex items-center gap-2"
+              className="w-full px-4 py-2 text-left text-sm text-white hover:bg-gray-800 rounded transition-colors flex items-center gap-2"
             >
               {theme === 'dark' ? (
                 <>
@@ -397,7 +397,7 @@ export default function UserMenu({ session, onCopyShareLink, showShareLink }: Us
             </button>
             <button
               onClick={() => signOut()}
-              className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors flex items-center gap-2"
+              className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-gray-800 rounded transition-colors flex items-center gap-2"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
