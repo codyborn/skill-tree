@@ -37,7 +37,7 @@ export async function GET(
     return NextResponse.json({
       tree: share.tree,
       views: share.views + 1, // Return incremented count
-      creator: share.creator,
+      creator: share.creator || null,
     });
   } catch (error) {
     console.error('Error fetching share:', error);

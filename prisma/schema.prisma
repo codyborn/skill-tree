@@ -73,11 +73,11 @@ model Share {
   id        String    @id @default(cuid())
   treeId    String
   shareId   String    @unique  // Public-facing ID
-  createdBy String
+  createdBy String?
   expiresAt DateTime?
   views     Int       @default(0)
   tree      Tree      @relation(fields: [treeId], references: [id], onDelete: Cascade)
-  creator   User      @relation("ShareCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+  creator   User?     @relation("ShareCreator", fields: [createdBy], references: [id], onDelete: Cascade)
   createdAt DateTime  @default(now())
 
   @@index([shareId])
