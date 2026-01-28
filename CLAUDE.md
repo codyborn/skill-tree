@@ -88,6 +88,51 @@ Uses Prisma ORM with PostgreSQL (Vercel Postgres):
 - Run `npx prisma generate` after schema changes
 - Run `npx prisma db push` to sync database
 
+### Database Migrations (Production)
+
+When schema changes need to be applied to production:
+
+1. **Pull Production Environment Variables**
+   ```bash
+   npx vercel env pull .env.production
+   ```
+
+2. **Extract DATABASE_URL**
+   ```bash
+   grep DATABASE_URL .env.production
+   ```
+
+3. **Run Migration**
+   ```bash
+   DATABASE_URL="<production-database-url>" npx prisma db push
+   ```
+
+4. **Run Migration Scripts** (if needed)
+   ```bash
+   DATABASE_URL="<production-database-url>" npx tsx scripts/migrate-<script-name>.ts
+   ```
+
+**Example:**
+```bash
+# Step 1: Get environment variables
+npx vercel env pull .env.production
+
+# Step 2: Copy the DATABASE_URL value from .env.production
+
+# Step 3: Run schema migration
+DATABASE_URL="postgres://..." npx prisma db push
+
+# Step 4: Run data migration script (if exists)
+DATABASE_URL="postgres://..." npx tsx scripts/migrate-share-creators.ts
+```
+
+**Important Notes:**
+- Always test schema changes locally first
+- Make optional fields when adding columns to existing tables (use `field?` in schema)
+- Create migration scripts in `scripts/` directory for data backfilling
+- Use `npx tsx` to run TypeScript migration scripts (not `ts-node`)
+- Verify migration success by checking Vercel function logs
+
 ### Testing
 
 ```bash
