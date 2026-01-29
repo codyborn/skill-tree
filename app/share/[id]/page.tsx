@@ -50,12 +50,7 @@ export default function SharePage({ params }: { params: { id: string } }) {
     <div className="flex flex-col h-screen">
       <header className="bg-gray-800 border-b border-gray-700 px-4 py-3 space-y-3">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold text-white">{shareData.tree.name}</h1>
-            {shareData.tree.description && (
-              <p className="text-sm text-gray-400 mt-1">{shareData.tree.description}</p>
-            )}
-          </div>
+          <h1 className="text-xl font-bold text-white">{shareData.tree.name}</h1>
           <div className="flex items-center gap-4">
             <div className="text-sm text-gray-400">
               👁️ {shareData.views} views
