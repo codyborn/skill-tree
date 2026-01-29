@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { signIn } from 'next-auth/react';
 
 interface FollowButtonProps {
   userId: string;
@@ -9,22 +11,52 @@ interface FollowButtonProps {
 }
 
 export default function FollowButton({ userId, userName, currentUserId }: FollowButtonProps) {
+  const { data: session, status } = useSession();
   const [isFollowing, setIsFollowing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch follow status on mount
+  const isAuthenticated = status === 'authenticated';
+
+  // Fetch follow status on mount (only if authenticated)
   useEffect(() => {
+    if (!isAuthenticated) return;
     if (userId === currentUserId) return;
     fetchFollowStatus(userId);
-  }, [userId, currentUserId]);
+  }, [userId, currentUserId, isAuthenticated]);
 
   // Don't show button if viewing own tree
   if (userId === currentUserId) {
     return null;
   }
 
+  // Show loading state while checking authentication
+  if (status === 'loading') {
+    return (
+      <button
+        disabled
+        className="px-4 py-2 rounded-lg font-medium bg-gray-700 text-gray-400 cursor-not-allowed"
+      >
+        Loading...
+      </button>
+    );
+  }
+
+  // Show "Sign in to follow" button if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <button
+        onClick={() => signIn()}
+        className="px-4 py-2 rounded-lg font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700"
+      >
+        Sign in to follow
+      </button>
+    );
+  }
+
   const fetchFollowStatus = async (targetUserId: string) => {
+    if (!isAuthenticated) return;
+
     try {
       const res = await fetch(`/api/follow/status/${targetUserId}`);
       if (res.ok) {
@@ -37,6 +69,11 @@ export default function FollowButton({ userId, userName, currentUserId }: Follow
   };
 
   const handleToggleFollow = async () => {
+    if (!isAuthenticated) {
+      signIn();
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
