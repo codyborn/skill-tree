@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Session } from 'next-auth';
 import { signOut } from 'next-auth/react';
-import type { NotificationWithActor, FollowUser } from '@/types/skill-tree';
+import type { NotificationWithActor, FollowUser, ActivityWithDetails } from '@/types/skill-tree';
 
 interface UserMenuProps {
   session: Session;
@@ -12,15 +12,16 @@ interface UserMenuProps {
   showShareLink?: boolean;
 }
 
-type TabType = 'friends' | 'notifications';
+type TabType = 'friends' | 'activity' | 'notifications';
 
 export default function UserMenu({ session, onCopyShareLink, showShareLink }: UserMenuProps) {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabType>('friends');
+  const [activeTab, setActiveTab] = useState<TabType>('activity');
   const [notifications, setNotifications] = useState<NotificationWithActor[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [friends, setFriends] = useState<FollowUser[]>([]);
+  const [activities, setActivities] = useState<ActivityWithDetails[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [followedBackUsers, setFollowedBackUsers] = useState<Set<string>>(new Set());
@@ -34,11 +35,12 @@ export default function UserMenu({ session, onCopyShareLink, showShareLink }: Us
     }
   }, []);
 
-  // Fetch notifications
+  // Fetch data when menu opens
   useEffect(() => {
     if (isOpen) {
       fetchNotifications();
       fetchFriends();
+      fetchActivities();
     }
   }, [isOpen]);
 
@@ -64,6 +66,18 @@ export default function UserMenu({ session, onCopyShareLink, showShareLink }: Us
       }
     } catch (error) {
       console.error('Failed to fetch friends:', error);
+    }
+  };
+
+  const fetchActivities = async () => {
+    try {
+      const res = await fetch('/api/activities/feed');
+      if (res.ok) {
+        const data = await res.json();
+        setActivities(data.activities);
+      }
+    } catch (error) {
+      console.error('Failed to fetch activities:', error);
     }
   };
 
@@ -128,6 +142,31 @@ export default function UserMenu({ session, onCopyShareLink, showShareLink }: Us
       }
     } catch (error) {
       console.error('Failed to fetch friend share:', error);
+    }
+  };
+
+  const handleToggleKudos = async (activityId: string, hasKudos: boolean) => {
+    try {
+      const res = await fetch(`/api/activities/${activityId}/kudos`, {
+        method: hasKudos ? 'DELETE' : 'POST',
+      });
+
+      if (res.ok) {
+        // Update activities list optimistically
+        setActivities(prev =>
+          prev.map(activity =>
+            activity.id === activityId
+              ? {
+                  ...activity,
+                  hasKudos: !hasKudos,
+                  kudosCount: hasKudos ? activity.kudosCount - 1 : activity.kudosCount + 1,
+                }
+              : activity
+          )
+        );
+      }
+    } catch (error) {
+      console.error('Failed to toggle kudos:', error);
     }
   };
 
@@ -235,8 +274,18 @@ export default function UserMenu({ session, onCopyShareLink, showShareLink }: Us
           {/* Tabs */}
           <div className="flex border-b border-gray-700">
             <button
+              onClick={() => setActiveTab('activity')}
+              className={`flex-1 px-3 py-3 font-medium transition-colors text-sm ${
+                activeTab === 'activity'
+                  ? 'text-blue-400 border-b-2 border-blue-400'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              Activity
+            </button>
+            <button
               onClick={() => setActiveTab('friends')}
-              className={`flex-1 px-4 py-3 font-medium transition-colors ${
+              className={`flex-1 px-3 py-3 font-medium transition-colors text-sm ${
                 activeTab === 'friends'
                   ? 'text-blue-400 border-b-2 border-blue-400'
                   : 'text-gray-400 hover:text-white'
@@ -246,13 +295,13 @@ export default function UserMenu({ session, onCopyShareLink, showShareLink }: Us
             </button>
             <button
               onClick={() => setActiveTab('notifications')}
-              className={`flex-1 px-4 py-3 font-medium transition-colors relative ${
+              className={`flex-1 px-3 py-3 font-medium transition-colors relative text-sm ${
                 activeTab === 'notifications'
                   ? 'text-blue-400 border-b-2 border-blue-400'
                   : 'text-gray-400 hover:text-white'
               }`}
             >
-              Notifications
+              Notifs
               {unreadCount > 0 && (
                 <span className="ml-1 bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
                   {unreadCount}
@@ -263,6 +312,64 @@ export default function UserMenu({ session, onCopyShareLink, showShareLink }: Us
 
           {/* Content */}
           <div className="flex-1 overflow-y-auto max-h-96">
+            {activeTab === 'activity' && (
+              <div className="divide-y divide-gray-700">
+                {activities.length === 0 ? (
+                  <p className="text-gray-400 text-center py-8 px-4">
+                    No recent activity. Follow friends to see their progress!
+                  </p>
+                ) : (
+                  activities.map(activity => (
+                    <div key={activity.id} className="p-4 hover:bg-gray-800 transition-colors">
+                      <div className="flex items-start gap-3">
+                        {activity.user.image ? (
+                          <img
+                            src={activity.user.image}
+                            alt={activity.user.name || 'User'}
+                            className="w-10 h-10 rounded-full flex-shrink-0"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 font-semibold flex-shrink-0">
+                            {activity.user.name?.[0]?.toUpperCase() || '?'}
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-white">
+                            <span className="font-medium">
+                              {activity.user.id === session.user.id
+                                ? 'You'
+                                : activity.user.name || activity.user.email}
+                            </span>{' '}
+                            completed <span className="font-medium">{activity.nodeLabel}</span>
+                          </p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            {activity.tree.name} • {getTimeAgo(activity.createdAt)}
+                          </p>
+                          <div className="flex items-center gap-4 mt-2">
+                            <button
+                              onClick={() => handleToggleKudos(activity.id, activity.hasKudos)}
+                              className={`flex items-center gap-1 text-sm transition-colors ${
+                                activity.hasKudos
+                                  ? 'text-blue-400'
+                                  : 'text-gray-400 hover:text-blue-400'
+                              }`}
+                            >
+                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
+                              </svg>
+                              {activity.kudosCount > 0 && (
+                                <span>{activity.kudosCount}</span>
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+
             {activeTab === 'friends' && (
               <div className="p-4 space-y-3">
                 {friends.length === 0 ? (

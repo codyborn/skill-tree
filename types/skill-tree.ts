@@ -345,6 +345,40 @@ export interface NotificationWithActor extends Notification {
   actor?: UserInfo;
 }
 
+// Activity types
+export enum ActivityType {
+  NODE_COMPLETED = 'NODE_COMPLETED',
+  NODE_UNCOMPLETED = 'NODE_UNCOMPLETED',
+}
+
+export interface Activity {
+  id: string;
+  userId: string;
+  treeId: string;
+  nodeId: string;
+  nodeLabel: string;
+  type: ActivityType;
+  createdAt: Date;
+}
+
+export interface ActivityWithDetails extends Activity {
+  user: UserInfo;
+  tree: {
+    id: string;
+    name: string;
+  };
+  kudos: Kudo[];
+  kudosCount: number;
+  hasKudos: boolean; // Whether current user has given kudos
+}
+
+export interface Kudo {
+  id: string;
+  userId: string;
+  activityId: string;
+  createdAt: Date;
+}
+
 // Share with creator
 export interface ShareResponseWithCreator extends ShareResponse {
   creator: UserInfo;
@@ -370,6 +404,12 @@ export interface NotificationListResponse {
 
 export interface MarkNotificationReadRequest {
   read: boolean;
+}
+
+export interface ActivityFeedResponse {
+  activities: ActivityWithDetails[];
+  hasMore: boolean;
+  cursor?: string;
 }
 
 // Utility types

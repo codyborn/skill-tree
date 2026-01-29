@@ -159,13 +159,32 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, shareId, onSave }
     }
   };
 
-  const handleToggleComplete = (nodeId: string) => {
+  const handleToggleComplete = async (nodeId: string) => {
     const cy = skillTree?.getCytoscapeInstance();
     const node = cy?.getElementById(nodeId);
     if (node && node.length > 0) {
       const completed = node.data('completed');
-      skillTree?.updateNode(nodeId, { completed: !completed });
+      const newCompletedState = !completed;
+      skillTree?.updateNode(nodeId, { completed: newCompletedState });
       setContextMenu(null);
+
+      // Create activity for completion/uncompletion (only if not in read-only mode and has treeId)
+      if (!readOnly && treeId && treeId !== 'new') {
+        try {
+          await fetch('/api/activities', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              treeId,
+              nodeId,
+              nodeLabel: node.data('label') || 'Unnamed node',
+              type: newCompletedState ? 'NODE_COMPLETED' : 'NODE_UNCOMPLETED',
+            }),
+          });
+        } catch (error) {
+          console.error('Failed to create activity:', error);
+        }
+      }
     }
   };
 
