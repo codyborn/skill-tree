@@ -10,7 +10,6 @@ import ContextMenu from './ContextMenu';
 import AIGenerateModal from './AIGenerateModal';
 import Toast from './Toast';
 import NodeTooltip from './NodeTooltip';
-import HelpTooltip from './HelpTooltip';
 
 interface SkillTreeEditorProps {
   treeId?: string;
@@ -33,20 +32,6 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, shareId, onSave }
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [hoveredNode, setHoveredNode] = useState<NodeSingular | null>(null);
   const [hoverPosition, setHoverPosition] = useState<{ x: number; y: number } | null>(null);
-  const [showHelp, setShowHelp] = useState(false);
-
-  // Check if we should show the help tooltip (only root node exists and not in readOnly mode)
-  useEffect(() => {
-    if (readOnly) {
-      setShowHelp(false);
-      return;
-    }
-
-    if (initialData && initialData.nodes) {
-      const hasOnlyRootNode = initialData.nodes.length === 1;
-      setShowHelp(hasOnlyRootNode);
-    }
-  }, [initialData, readOnly]);
 
   useEffect(() => {
     // Initialize Cytoscape only on client
@@ -56,7 +41,9 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, shareId, onSave }
           container: containerRef.current!,
           readOnly: readOnly,
           onNodeClick: (node) => {
-            // Don't open detail panel for root nodes
+            // Don't open detail panel in read-only mode or for root nodes
+            if (readOnly) return;
+
             const parentId = node.data('parentId');
             const isRootNode = parentId === null || parentId === undefined;
             if (!isRootNode) {
@@ -159,8 +146,15 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, shareId, onSave }
       if (node && node.length > 0) {
         await skillTree.addChildNode(node);
         setContextMenu(null);
-        // Hide help tooltip after adding first node
-        setShowHelp(false);
+
+        // Clear root node help text after adding first child
+        const rootNode = cy?.getElementById('root');
+        if (rootNode && rootNode.length > 0) {
+          const currentLabel = rootNode.data('label');
+          if (currentLabel === 'Right click here to get started') {
+            rootNode.data('label', '');
+          }
+        }
       }
     }
   };
@@ -322,8 +316,15 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, shareId, onSave }
 
       setToast({ message: 'Skill tree generated successfully!', type: 'success' });
       setAiModalOpen(false);
-      // Hide help tooltip after AI generation
-      setShowHelp(false);
+
+      // Clear root node help text after AI generation
+      const rootNode = cy?.getElementById('root');
+      if (rootNode && rootNode.length > 0) {
+        const currentLabel = rootNode.data('label');
+        if (currentLabel === 'Right click here to get started') {
+          rootNode.data('label', '');
+        }
+      }
     } catch (error) {
       console.error('AI generation error:', error);
       setToast({ message: 'Failed to generate skill tree', type: 'error' });
@@ -380,8 +381,6 @@ function SkillTreeEditorInner({ treeId, initialData, readOnly, shareId, onSave }
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
       <NodeTooltip node={hoveredNode} position={hoverPosition} />
-
-      <HelpTooltip show={showHelp} />
     </div>
   );
 }

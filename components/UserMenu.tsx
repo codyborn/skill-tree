@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { Session } from 'next-auth';
 import { signOut } from 'next-auth/react';
 import type { NotificationWithActor, FollowUser } from '@/types/skill-tree';
@@ -14,6 +15,7 @@ interface UserMenuProps {
 type TabType = 'friends' | 'notifications';
 
 export default function UserMenu({ session, onCopyShareLink, showShareLink }: UserMenuProps) {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('friends');
   const [notifications, setNotifications] = useState<NotificationWithActor[]>([]);
@@ -111,6 +113,21 @@ export default function UserMenu({ session, onCopyShareLink, showShareLink }: Us
       }
     } catch (error) {
       console.error('Failed to dismiss notification:', error);
+    }
+  };
+
+  const handleVisitFriend = async (userId: string) => {
+    try {
+      const res = await fetch(`/api/user/${userId}/latest-share`);
+      if (res.ok) {
+        const data = await res.json();
+        setIsOpen(false);
+        router.push(`/share/${data.shareId}`);
+      } else {
+        console.error('No shares found for this user');
+      }
+    } catch (error) {
+      console.error('Failed to fetch friend share:', error);
     }
   };
 
@@ -254,9 +271,10 @@ export default function UserMenu({ session, onCopyShareLink, showShareLink }: Us
                   </p>
                 ) : (
                   friends.map(friend => (
-                    <div
+                    <button
                       key={friend.id}
-                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800 transition-colors"
+                      onClick={() => handleVisitFriend(friend.id)}
+                      className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800 transition-colors text-left"
                     >
                       {friend.image ? (
                         <img
@@ -277,7 +295,7 @@ export default function UserMenu({ session, onCopyShareLink, showShareLink }: Us
                           Following since {getTimeAgo(friend.followingSince)}
                         </p>
                       </div>
-                    </div>
+                    </button>
                   ))
                 )}
               </div>

@@ -31,8 +31,8 @@ export default function TreePage({ params }: { params: { id: string } }) {
               group: 'nodes',
               data: {
                 id: 'root',
-                label: '',
-                description: 'Right-click to start building your skill tree',
+                label: 'Right click here to get started',
+                description: 'Add your first skill or use AI to generate a tree',
                 completed: false,
                 locked: false,
                 parentId: null,
