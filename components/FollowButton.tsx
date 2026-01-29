@@ -46,7 +46,11 @@ export default function FollowButton({ userId, userName, currentUserId }: Follow
   if (!isAuthenticated) {
     return (
       <button
-        onClick={() => signIn()}
+        onClick={() => {
+          // Redirect back to current page after sign in
+          const currentUrl = window.location.href;
+          signIn(undefined, { callbackUrl: currentUrl });
+        }}
         className="px-4 py-2 rounded-lg font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700"
       >
         Sign in to follow

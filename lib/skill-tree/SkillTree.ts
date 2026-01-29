@@ -14,6 +14,7 @@ import type {
 
 export interface SkillTreeOptions {
   container: HTMLElement;
+  readOnly?: boolean;
   onNodeClick?: (node: NodeSingular) => void;
   onNodeRightClick?: (node: NodeSingular, event: MouseEvent) => void;
   onCanvasClick?: () => void;
@@ -27,6 +28,7 @@ export class SkillTree {
   private container: HTMLElement;
   private selectedNode: NodeSingular | null = null;
   private isDragging = false;
+  private readOnly: boolean = false;
 
   // Callbacks
   private onNodeClick?: (node: NodeSingular) => void;
@@ -38,6 +40,7 @@ export class SkillTree {
 
   constructor(options: SkillTreeOptions) {
     this.container = options.container;
+    this.readOnly = options.readOnly || false;
     this.onNodeClick = options.onNodeClick;
     this.onNodeRightClick = options.onNodeRightClick;
     this.onCanvasClick = options.onCanvasClick;
@@ -80,6 +83,7 @@ export class SkillTree {
       wheelSensitivity: 0.2,
       selectionType: 'single',
       boxSelectionEnabled: false,
+      autoungrabify: this.readOnly, // Disable node dragging in read-only mode
     });
 
     this.setupEventListeners();

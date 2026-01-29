@@ -21,6 +21,7 @@ export default function UserMenu({ session, onCopyShareLink, showShareLink }: Us
   const [friends, setFriends] = useState<FollowUser[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const [followedBackUsers, setFollowedBackUsers] = useState<Set<string>>(new Set());
   const menuRef = useRef<HTMLDivElement>(null);
 
   // Load theme on mount
@@ -86,6 +87,8 @@ export default function UserMenu({ session, onCopyShareLink, showShareLink }: Us
         body: JSON.stringify({ targetUserId: userId }),
       });
       if (res.ok) {
+        // Mark user as followed back
+        setFollowedBackUsers(prev => new Set(prev).add(userId));
         // Refresh notifications and friends list
         fetchNotifications();
         fetchFriends();
@@ -312,12 +315,16 @@ export default function UserMenu({ session, onCopyShareLink, showShareLink }: Us
                             {getTimeAgo(notification.createdAt)}
                           </p>
                           {notification.type === 'NEW_FOLLOWER' && notification.actorId && (
-                            <button
-                              onClick={() => handleFollowBack(notification.actorId!)}
-                              className="mt-2 text-sm text-blue-400 hover:underline"
-                            >
-                              Follow Back
-                            </button>
+                            followedBackUsers.has(notification.actorId) ? (
+                              <span className="mt-2 text-sm text-gray-400">Following</span>
+                            ) : (
+                              <button
+                                onClick={() => handleFollowBack(notification.actorId!)}
+                                className="mt-2 text-sm text-blue-400 hover:underline"
+                              >
+                                Follow Back
+                              </button>
+                            )
                           )}
                         </div>
                         <button
